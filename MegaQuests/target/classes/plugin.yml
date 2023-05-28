@@ -1,0 +1,7 @@
+name: MegaQuests
+version: '0.1'
+main: com.elmer.megaquests.MegaQuests
+api-version: 1.19
+commands:
+  quests:
+  resetcooldown:
