@@ -3,6 +3,7 @@ package com.elmer.megaquests.commands;
 import com.elmer.megaquests.ItemBuilder;
 import com.elmer.megaquests.MegaQuests;
 import com.elmer.megaquests.Quests;
+import com.elmer.megaquests.managers.QuestManager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import org.bukkit.*;
@@ -55,6 +56,9 @@ public class QuestGUICommand implements CommandExecutor {
     public void createQuestGUI(Player player){
         questGUI = Bukkit.createInventory(player, 27, ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests");
 
+
+        UUID playerId = player.getUniqueId();
+
         ItemStack questResetTimer = new ItemBuilder(Material.CLOCK)
                 .withDisplayName(ChatColor.RED.toString() + megaQuests.getCooldownManager().getTimeToWait() + " Hours until reset").build();
         questGUI.setItem(26,questResetTimer);
@@ -62,9 +66,13 @@ public class QuestGUICommand implements CommandExecutor {
         questItems.clear();
         questsData.clear();
         taskAmounts.clear();
+        megaQuests.getQuestManager().resetPlayerQuestProgress(playerId);
+
 
         for (Quests quests : Quests.values()){
-            quests.resetProgress();
+            if(megaQuests.getQuestManager().getPlayerProgressMap() != null){
+                megaQuests.getQuestManager().resetPlayerQuestProgress(playerId);
+            }
             quests.setCompleted(false);
             quests.resetTaskAmount();
         }
@@ -77,10 +85,10 @@ public class QuestGUICommand implements CommandExecutor {
 
         if (availableQuests.length > 0) {
 
-            for (int i = megaQuests.getQuestManager().getQuestGUIAmount() + 6; i < megaQuests.getQuestManager().getQuestGUIAmount() - + 11; i++){
+            for (int i = megaQuests.getQuestManager().getQuestGUIAmount() + 6; i < megaQuests.getQuestManager().getQuestGUIAmount() + 11; i++){
 
                 if (availableQuests.length == 0) {
-                    break; // Break out of the loop if there are no more available quests
+                    break;
                 }
 
                 int randomIndex = random.nextInt(availableQuests.length);
@@ -92,7 +100,7 @@ public class QuestGUICommand implements CommandExecutor {
                 int taskAmount = random.nextInt(maxTask - minTask + 1) + minTask;
 
                 ItemStack questItem = new ItemBuilder(quest.getItemDisplay())
-                        .withDisplayName(quest.getDisplay() +  " " +  ChatColor.GRAY + quest.getProgress(player.getUniqueId()) + "/" + taskAmount)
+                        .withDisplayName(quest.getDisplay() +  " " +  ChatColor.GRAY + megaQuests.getQuestManager().getProgress(playerId, quest) + "/" + taskAmount)
                         .build();
 
                 selectedQuests.add(quest);
@@ -121,7 +129,7 @@ public class QuestGUICommand implements CommandExecutor {
         int slot = megaQuests.getQuestManager().getQuestGUIAmount() + 6;
         for (int i = 0; i < questItems.size(); i++){
             questItems.set(i,new ItemBuilder(questsData.get(i).getItemDisplay())
-                    .withDisplayName(questsData.get(i).getDisplay() +  " " + ChatColor.GRAY + questsData.get(i).getProgress(player.getUniqueId()) + "/" + taskAmounts.get(i))
+                    .withDisplayName(questsData.get(i).getDisplay() +  " " + ChatColor.GRAY + megaQuests.getQuestManager().getProgress(player.getUniqueId(), questsData.get(i))  + "/" + taskAmounts.get(i))
                     .build());
             questGUI.setItem(slot, questItems.get(i));
             slot++;

@@ -4,6 +4,7 @@ com\elmer\megaquests\commands\ResetCooldownCommand.class
 com\elmer\megaquests\Quests.class
 com\elmer\megaquests\listeners\questlisteners\EntityKillQuestsListener.class
 com\elmer\megaquests\managers\QuestManager.class
+com\elmer\megaquests\listeners\JoinQuitListener.class
 com\elmer\megaquests\MegaQuests.class
 com\elmer\megaquests\ItemBuilder.class
 com\elmer\megaquests\commands\QuestGUICommand.class

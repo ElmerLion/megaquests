@@ -1,9 +1,11 @@
 package com.elmer.megaquests;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -31,13 +33,9 @@ public enum Quests {
     private int maxTask;
     private int minTask;
     private Material itemDisplay;
-    /*private String description1;
-    private String description2;*/
-    private int progress;
     private boolean completed;
     private boolean enabled;
     private int taskAmount;
-    private Map<UUID, Integer> playerProgressMap;
 
 
 
@@ -47,9 +45,6 @@ public enum Quests {
         this.maxTask = maxTask;
         this.minTask = minTask;
         this.itemDisplay = itemDisplay;
-        //this.description1 = description1;
-        //this.description2 = description2;
-        this.progress = progress;
         this.completed = completed;
         this.enabled = enabled;
         this.taskAmount = taskAmount;
@@ -61,17 +56,6 @@ public enum Quests {
     public int getMinTask(){return minTask;}
     public Material getItemDisplay(){return itemDisplay;}
 
-    //public String getDescription1() {return description1;}
-
-    //public String getDescription2() {return description2;}
-
-    public int getProgress(UUID playerId) {return playerProgressMap.getOrDefault(playerId, 0);}
-    public void addProgress(UUID playerId, int amount) {
-        int currentProgress = playerProgressMap.getOrDefault(playerId, 0);
-        playerProgressMap.put(playerId, currentProgress + amount);
-    }
-    public void resetProgress() {progress = 0;}
-
     public boolean isCompleted() {return completed;}
     public void setCompleted(boolean completed) { this.completed = completed; }
 
@@ -81,4 +65,9 @@ public enum Quests {
     public int getTaskAmount() {return taskAmount;}
     public void setTaskAmount(int amount) {taskAmount = amount; }
     public void resetTaskAmount () {taskAmount = 0;}
+
+    //public static Map<UUID, Integer> getPlayerProgressMap() {return playerProgressMap;}
+    public void setMaxTask(int amount){ maxTask = amount; }
+    public void setMinTask(int amount) { minTask = amount; }
+    public void setReward(int amount){reward = amount;}
 }

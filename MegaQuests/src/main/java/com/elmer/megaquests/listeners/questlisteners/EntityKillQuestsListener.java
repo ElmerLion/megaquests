@@ -35,24 +35,24 @@ public class EntityKillQuestsListener implements Listener {
             QuestManager questManager = megaQuests.getQuestManager();
 
             //progressAdded =  false;
-            for (int i = megaQuests.getQuestManager().getQuestGUIAmount() + 6; i < megaQuests.getQuestManager().getQuestGUIAmount() - + 11; i++){
+            for (int i = megaQuests.getQuestManager().getQuestGUIAmount() + 6; i < megaQuests.getQuestManager().getQuestGUIAmount() + 11; i++){
                 if (e.getEntityType().equals(EntityType.SKELETON) && questGUI.getItem(i).getType().equals(Material.SKELETON_SKULL) && Quests.KILLSKELETON.isEnabled() && !Quests.KILLSKELETON.isCompleted()){
                     questManager.checkCompletion(player, Quests.KILLSKELETON, 1);
                 }
 
-                if (e.getEntityType().equals(EntityType.ZOMBIE) && questGUI.getItem(i).getType().equals(Material.ZOMBIE_HEAD) && !Quests.KILLZOMBIE.isCompleted()){
+                if (e.getEntityType().equals(EntityType.ZOMBIE) && questGUI.getItem(i).getType().equals(Material.ZOMBIE_HEAD) && Quests.KILLZOMBIE.isEnabled() && !Quests.KILLZOMBIE.isCompleted()){
                     questManager.checkCompletion(player, Quests.KILLZOMBIE,1);
                 }
 
-                if (e.getEntityType().equals(EntityType.PLAYER) && questGUI.getItem(i).getType().equals(Material.PLAYER_HEAD) && !Quests.KILLZOMBIE.isCompleted()){
+                if (e.getEntityType().equals(EntityType.PLAYER) && questGUI.getItem(i).getType().equals(Material.PLAYER_HEAD) && Quests.KILLPLAYER.isEnabled() && !Quests.KILLZOMBIE.isCompleted()){
                     questManager.checkCompletion(player, Quests.KILLPLAYER, 1);
                 }
 
-                if (e.getEntityType().equals(EntityType.EVOKER) && questGUI.getItem(i).getType().equals(Material.TOTEM_OF_UNDYING) && !Quests.KILLEVOKER.isCompleted()){
+                if (e.getEntityType().equals(EntityType.EVOKER) && questGUI.getItem(i).getType().equals(Material.TOTEM_OF_UNDYING) && Quests.KILLEVOKER.isEnabled() && !Quests.KILLEVOKER.isCompleted()){
                     questManager.checkCompletion(player, Quests.KILLEVOKER, 1);
                 }
 
-                if (e.getEntityType().equals(EntityType.BLAZE) && questGUI.getItem(i).getType().equals(Material.BLAZE_POWDER) && !Quests.KILLBLAZE.isCompleted()){
+                if (e.getEntityType().equals(EntityType.BLAZE) && questGUI.getItem(i).getType().equals(Material.BLAZE_POWDER) && Quests.KILLBLAZE.isEnabled() && !Quests.KILLBLAZE.isCompleted()){
                     questManager.checkCompletion(player, Quests.KILLBLAZE, 1);
                 }
             }
