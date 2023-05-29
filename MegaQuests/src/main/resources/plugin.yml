@@ -1,5 +1,5 @@
 name: MegaQuests
-version: '${project.version}'
+version: '1.0.0'
 main: com.elmer.megaquests.MegaQuests
 api-version: 1.19
 commands:

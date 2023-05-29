@@ -35,7 +35,7 @@ public class EntityKillQuestsListener implements Listener {
             QuestManager questManager = megaQuests.getQuestManager();
 
             //progressAdded =  false;
-            for (int i = megaQuests.getQuestManager().getQuestGUIAmount() + 6; i < megaQuests.getQuestManager().getQuestGUIAmount() + 11; i++){
+            for (int i = megaQuests.getQuestManager().getStartingSlot(); i < megaQuests.getQuestManager().getEndingSlot(); i++){
                 if (e.getEntityType().equals(EntityType.SKELETON) && questGUI.getItem(i).getType().equals(Material.SKELETON_SKULL) && Quests.KILLSKELETON.isEnabled() && !Quests.KILLSKELETON.isCompleted()){
                     questManager.checkCompletion(player, Quests.KILLSKELETON, 1);
                 }

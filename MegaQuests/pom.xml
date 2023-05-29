@@ -6,7 +6,7 @@
 
     <groupId>com.elmer</groupId>
     <artifactId>MegaQuests</artifactId>
-    <version>0.1</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <name>MegaQuests</name>

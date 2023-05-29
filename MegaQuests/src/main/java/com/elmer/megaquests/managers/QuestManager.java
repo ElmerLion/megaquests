@@ -74,26 +74,35 @@ public class QuestManager {
         }
         FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
+           long resetTimer = config.getLong("ResetTimer (in  minutes)", megaQuests.getCooldownManager().getResetTimer());
+           megaQuests.getCooldownManager().setResetTimer(resetTimer);
+           config.set("ResetTimer (in  minutes)", megaQuests.getCooldownManager().getResetTimer());
+
+           int questGUIAmount = config.getInt("QuestsInGUIAmount", getQuestGUIAmount());
+           setQuestGUIAmount(questGUIAmount);
+           config.set("QuestsInGUIAmount", getQuestGUIAmount());
+
+
         for (Quests quest : Quests.values()) {
             String questKey = quest.name();
 
-            boolean enabled = config.getBoolean("quests." + questKey + ".enabled", true);
+            boolean enabled = config.getBoolean("Quests." + questKey + ".enabled", true);
             quest.setEnabled(enabled);
 
-            int maxTask = config.getInt("quests." + questKey + ".maxTask", quest.getMaxTask());
+            int maxTask = config.getInt("Quests." + questKey + ".maxTask", quest.getMaxTask());
             quest.setMaxTask(maxTask);
 
-            int minTask = config.getInt("quests." + questKey + ".minTask", quest.getMinTask());
+            int minTask = config.getInt("Quests." + questKey + ".minTask", quest.getMinTask());
             quest.setMinTask(minTask);
 
-            int reward = config.getInt("quests." + questKey + ".reward", quest.getReward());
+            int reward = config.getInt("Quests." + questKey + ".reward", quest.getReward());
             quest.setReward(reward);
 
 
-            config.set("quests." + questKey , quest.isEnabled());
-            config.set("quests." + questKey + ".minTask", quest.getMinTask());
-            config.set("quests." + questKey + ".maxTask", quest.getMaxTask());
-            config.set("quests." + questKey + ".reward", quest.getReward());
+            config.set("Quests." + questKey + ".enabled", quest.isEnabled());
+            config.set("Quests." + questKey + ".minTask", quest.getMinTask());
+            config.set("Quests." + questKey + ".maxTask", quest.getMaxTask());
+            config.set("Quests." + questKey + ".reward", quest.getReward());
         }
         try {
             config.save(configFile);
@@ -184,5 +193,23 @@ public class QuestManager {
 
     public Map<UUID, Map<Quests, Integer>> getPlayerProgressMap() {
         return playerProgressMap;
+    }
+
+    public void setQuestGUIAmount(int questGUIAmount) {
+        this.questGUIAmount = questGUIAmount;
+    }
+    public int getStartingSlot(){
+        int availableSlots = 27;
+        int middleSlot = availableSlots / 2;
+
+        int startingSlot = middleSlot - (getQuestGUIAmount() / 2);
+        return startingSlot;
+    }
+    public int getEndingSlot(){
+        int availableSlots = 27;
+        int middleSlot = availableSlots / 2;
+
+        int endingSlot = middleSlot + (getQuestGUIAmount() / 2);
+        return endingSlot;
     }
 }

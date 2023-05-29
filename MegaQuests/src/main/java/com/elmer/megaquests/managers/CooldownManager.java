@@ -17,6 +17,7 @@ public class CooldownManager {
     private final File dataFile;
     private MegaQuests megaQuests;
     private long timeToWait;
+    private long resetTimer = 1440;
 
 
     public CooldownManager(File dataFile, MegaQuests megaQuests) {
@@ -32,20 +33,21 @@ public class CooldownManager {
 
         if (currentTime >= cooldownEndTime) {
             // Cooldown is not active, update the cooldown time
-            long newCooldownEndTime = currentTime + TimeUnit.SECONDS.toMillis(60);
+            long newCooldownEndTime = currentTime + TimeUnit.MINUTES.toMillis(resetTimer);
             cooldowns.put(playerId, newCooldownEndTime);
             saveCooldownsToFile();
             // Continue with the rest of your logic
+            timeToWait = newCooldownEndTime - currentTime;
+            setTimeToWait(timeToWait);
 
             megaQuests.getQuestGUICommand().createQuestGUI(player);
 
 
 
         } else {
-            // Cooldown is active, calculate the remaining time
-            megaQuests.getQuestGUICommand().openQuestGUI(player);
             timeToWait = cooldownEndTime - currentTime;
-            player.sendMessage(ChatColor.RED + "Wait for " + TimeUnit.MILLISECONDS.toSeconds(timeToWait) + ChatColor.RED + " seconds for quests to reset");
+            setTimeToWait(timeToWait);
+            megaQuests.getQuestGUICommand().openQuestGUI(player);
         }
     }
 
@@ -85,8 +87,20 @@ public class CooldownManager {
         cooldowns.remove(player.getUniqueId());
         saveCooldownsToFile();
     }
+    public void resetAllCooldowns (){
+        cooldowns.clear();
+        saveCooldownsToFile();
+    }
 
     public long getTimeToWait() {
-        return TimeUnit.MILLISECONDS.toHours(timeToWait);
+        return timeToWait;
+    }
+    public void setTimeToWait(long amount) { timeToWait = amount; }
+
+    public long getResetTimer() {return resetTimer;}
+    public long setResetTimer(long minutes) { resetTimer = minutes; return resetTimer; }
+
+    public Map<UUID, Long> getCooldowns() {
+        return cooldowns;
     }
 }

@@ -56,12 +56,11 @@ public class QuestGUICommand implements CommandExecutor {
     public void createQuestGUI(Player player){
         questGUI = Bukkit.createInventory(player, 27, ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests");
 
+        int startingSlot = megaQuests.getQuestManager().getStartingSlot();
+        int endingSlot = megaQuests.getQuestManager().getEndingSlot();
+
 
         UUID playerId = player.getUniqueId();
-
-        ItemStack questResetTimer = new ItemBuilder(Material.CLOCK)
-                .withDisplayName(ChatColor.RED.toString() + megaQuests.getCooldownManager().getTimeToWait() + " Hours until reset").build();
-        questGUI.setItem(26,questResetTimer);
 
         questItems.clear();
         questsData.clear();
@@ -83,11 +82,12 @@ public class QuestGUICommand implements CommandExecutor {
 
         List<Quests> selectedQuests = new ArrayList<>();
 
-        if (availableQuests.length > 0) {
+        if (availableQuests.length >= 5) {
 
-            for (int i = megaQuests.getQuestManager().getQuestGUIAmount() + 6; i < megaQuests.getQuestManager().getQuestGUIAmount() + 11; i++){
+            for (int i = startingSlot; i <= endingSlot; i++){
 
                 if (availableQuests.length == 0) {
+                    player.sendMessage(ChatColor.RED + "Error: Not enough quests are enabled!");
                     break;
                 }
 
@@ -101,7 +101,7 @@ public class QuestGUICommand implements CommandExecutor {
 
                 ItemStack questItem = new ItemBuilder(quest.getItemDisplay())
                         .withDisplayName(quest.getDisplay() +  " " +  ChatColor.GRAY + megaQuests.getQuestManager().getProgress(playerId, quest) + "/" + taskAmount)
-                        .build();
+                        .withLore(ChatColor.GRAY + "Completion Reward $" + quest.getReward()).build();
 
                 selectedQuests.add(quest);
                 availableQuests = removeQuest(availableQuests, randomIndex);
@@ -115,9 +115,10 @@ public class QuestGUICommand implements CommandExecutor {
                 taskAmounts.add(taskAmount);
             }
         } else {
-            System.out.println("MegaQuests: All quests are disabled, Enable them in quests.yml!");
+            System.out.println("MegaQuests: Too many quests are disabled, Enable more in quests.yml!");
         }
 
+        createQuestTimer();
 
         player.openInventory(questGUI);
 
@@ -126,17 +127,19 @@ public class QuestGUICommand implements CommandExecutor {
     }
 
     public void openQuestGUI(Player player) {
-        int slot = megaQuests.getQuestManager().getQuestGUIAmount() + 6;
+
+        int slot = megaQuests.getQuestManager().getStartingSlot();
         for (int i = 0; i < questItems.size(); i++){
             questItems.set(i,new ItemBuilder(questsData.get(i).getItemDisplay())
                     .withDisplayName(questsData.get(i).getDisplay() +  " " + ChatColor.GRAY + megaQuests.getQuestManager().getProgress(player.getUniqueId(), questsData.get(i))  + "/" + taskAmounts.get(i))
-                    .build());
+                    .withLore(ChatColor.GRAY + "Completion Reward $" + questsData.get(i).getReward()).build());
             questGUI.setItem(slot, questItems.get(i));
             slot++;
         }
 
         player.sendMessage("Opened Updated GUI");
 
+        createQuestTimer();
         player.openInventory(questGUI);
     }
 
@@ -148,5 +151,18 @@ public class QuestGUICommand implements CommandExecutor {
         System.arraycopy(quests, 0, newQuests, 0, index);
         System.arraycopy(quests, index + 1, newQuests, index, quests.length - index - 1);
         return newQuests;
+    }
+    public void createQuestTimer(){
+        if (megaQuests.getCooldownManager().getTimeToWait() < TimeUnit.HOURS.toMillis(1)){
+            ItemStack questResetTimer = new ItemBuilder(Material.CLOCK)
+                    .withDisplayName(ChatColor.GOLD.toString() + TimeUnit.MILLISECONDS.toMinutes(megaQuests.getCooldownManager().getTimeToWait()) + " minutes until reset.").build();
+            getQuestGUI().setItem(26,questResetTimer);
+            System.out.println(megaQuests.getCooldownManager().getTimeToWait());
+        }
+        if (megaQuests.getCooldownManager().getTimeToWait() >= TimeUnit.HOURS.toMillis(1)){
+            ItemStack questResetTimer = new ItemBuilder(Material.CLOCK)
+                    .withDisplayName(ChatColor.GOLD.toString() + TimeUnit.MILLISECONDS.toHours(megaQuests.getCooldownManager().getTimeToWait()) + " hours until reset.").build();
+            getQuestGUI().setItem(26,questResetTimer);
+        }
     }
 }

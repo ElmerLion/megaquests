@@ -12,21 +12,27 @@ import java.util.UUID;
 public enum Quests {
 
     MINEDIAMONDORE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Mine Diamonds"
-            ,Material.DIAMOND, 100, 3, 20, 0, false, true, 0),
+            ,Material.DIAMOND_ORE, 100, 3, 20,  false, true, 0),
     KILLSKELETON(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Skeletons"
-            ,Material.SKELETON_SKULL, 100, 10,50, 0, false, true, 0 ),
+            ,Material.SKELETON_SKULL, 100, 10,50,  false, true, 0 ),
     KILLZOMBIE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Zombies"
-            ,Material.ZOMBIE_HEAD, 100, 10, 100, 0,false, true, 0),
+            ,Material.ZOMBIE_HEAD, 100, 10, 100, false, true, 0),
     KILLPLAYER(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Players"
-            ,Material.PLAYER_HEAD, 100, 1, 5, 0, false, true, 0),
+            ,Material.PLAYER_HEAD, 100, 1, 5,  false, true, 0),
     FISHING(ChatColor.GREEN.toString() + ChatColor.BOLD + "Go Fishing"
-            , Material.TROPICAL_FISH, 100,5,20, 0, false, true, 0),
+            , Material.TROPICAL_FISH, 100,5,20,  false, true, 0),
     KILLSPIDER(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Spiders"
-            , Material.SPIDER_EYE, 100, 5, 70, 0, false, true, 0),
+            , Material.SPIDER_EYE, 100, 5, 70,  false, true, 0),
     KILLEVOKER(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Evokers"
-            , Material.TOTEM_OF_UNDYING, 100, 1, 5, 0, false, true, 0),
+            , Material.TOTEM_OF_UNDYING, 100, 1, 5,  false, true, 0),
     KILLBLAZE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Blazes"
-            , Material.BLAZE_POWDER, 100, 5, 20, 0, false, true, 0);
+            , Material.BLAZE_POWDER, 100, 5, 20,  false, true, 0),
+    MINEIRONORE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Mine Iron Ore"
+            ,Material.IRON_ORE, 100, 10, 150, false, true, 0),
+    MINEGOLDORE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Mine Gold Ore"
+            ,Material.GOLD_ORE, 100, 10, 150, false, true, 0),
+    MINECOALORE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Mine Coal Ore"
+            ,Material.COAL_ORE, 100, 10, 150, false, true, 0);
 
     private String display;
     private int reward;
@@ -39,7 +45,7 @@ public enum Quests {
 
 
 
-    Quests(String display, Material itemDisplay, int reward, int minTask, int maxTask, int progress, boolean completed, boolean enabled, int taskAmount){
+    Quests(String display, Material itemDisplay, int reward, int minTask, int maxTask, boolean completed, boolean enabled, int taskAmount){
         this.display = display;
         this.reward = reward;
         this.maxTask = maxTask;
