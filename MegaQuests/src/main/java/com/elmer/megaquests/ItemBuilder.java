@@ -1,14 +1,13 @@
 package com.elmer.megaquests;
-import org.bukkit.ChatColor;
+
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ItemBuilder {
-
-    private MegaQuests megaQuests;
 
     private final ItemStack item;
 
@@ -18,15 +17,19 @@ public class ItemBuilder {
 
     public ItemBuilder withDisplayName(String displayName) {
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.setDisplayName(displayName);
-        item.setItemMeta(itemMeta);
+        if (Objects.nonNull(itemMeta)) {
+            itemMeta.setDisplayName(displayName);
+            item.setItemMeta(itemMeta);
+        }
         return this;
     }
 
     public ItemBuilder withLore(String... lore) {
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.setLore(Arrays.asList(lore));
-        item.setItemMeta(itemMeta);
+        if (Objects.nonNull(itemMeta)) {
+            itemMeta.setLore(Arrays.asList(lore));
+            item.setItemMeta(itemMeta);
+        }
         return this;
     }
 

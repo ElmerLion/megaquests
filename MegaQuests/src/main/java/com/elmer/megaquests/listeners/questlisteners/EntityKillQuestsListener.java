@@ -11,52 +11,54 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.Inventory;
 
-import java.util.UUID;
+import java.util.Objects;
 
 public class EntityKillQuestsListener implements Listener {
 
-    MegaQuests megaQuests;
+    private final QuestManager questManager;
+    private final MegaQuests megaQuests;
 
-
-
-    public EntityKillQuestsListener(MegaQuests megaQuests){
+    public EntityKillQuestsListener(MegaQuests megaQuests) {
         this.megaQuests = megaQuests;
+        this.questManager = megaQuests.getQuestManager();
     }
 
     @EventHandler
-    public void onEntityDeath (EntityDeathEvent e){
-        if (e.getEntity().getKiller() instanceof Player){
-            Player player = (Player) e.getEntity().getKiller();
-            UUID playerId = player.getUniqueId();
-            Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
-
-            //boolean progressAdded = megaQuests.getQuestManager().isProgressAdded();
-
-            QuestManager questManager = megaQuests.getQuestManager();
-
-            //progressAdded =  false;
-            for (int i = megaQuests.getQuestManager().getStartingSlot(); i < megaQuests.getQuestManager().getEndingSlot(); i++){
-                if (e.getEntityType().equals(EntityType.SKELETON) && questGUI.getItem(i).getType().equals(Material.SKELETON_SKULL) && Quests.KILLSKELETON.isEnabled() && !Quests.KILLSKELETON.isCompleted()){
-                    questManager.checkCompletion(player, Quests.KILLSKELETON, 1);
-                }
-
-                if (e.getEntityType().equals(EntityType.ZOMBIE) && questGUI.getItem(i).getType().equals(Material.ZOMBIE_HEAD) && Quests.KILLZOMBIE.isEnabled() && !Quests.KILLZOMBIE.isCompleted()){
-                    questManager.checkCompletion(player, Quests.KILLZOMBIE,1);
-                }
-
-                if (e.getEntityType().equals(EntityType.PLAYER) && questGUI.getItem(i).getType().equals(Material.PLAYER_HEAD) && Quests.KILLPLAYER.isEnabled() && !Quests.KILLZOMBIE.isCompleted()){
-                    questManager.checkCompletion(player, Quests.KILLPLAYER, 1);
-                }
-
-                if (e.getEntityType().equals(EntityType.EVOKER) && questGUI.getItem(i).getType().equals(Material.TOTEM_OF_UNDYING) && Quests.KILLEVOKER.isEnabled() && !Quests.KILLEVOKER.isCompleted()){
-                    questManager.checkCompletion(player, Quests.KILLEVOKER, 1);
-                }
-
-                if (e.getEntityType().equals(EntityType.BLAZE) && questGUI.getItem(i).getType().equals(Material.BLAZE_POWDER) && Quests.KILLBLAZE.isEnabled() && !Quests.KILLBLAZE.isCompleted()){
-                    questManager.checkCompletion(player, Quests.KILLBLAZE, 1);
-                }
-            }
-
+    public void onEntityDeath(EntityDeathEvent event) {
+        Player player = event.getEntity().getKiller();
+        if (Objects.isNull(player)) {
+            return;
         }
+        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
+
+        for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot(); i++) {
+            if (event.getEntityType().equals(EntityType.SKELETON)
+                    && questGUI.getItem(i).getType().equals(Material.SKELETON_SKULL)
+                    && Quests.KILL_SKELETON.isEnabled()
+                    && !Quests.KILL_SKELETON.isCompleted()) {
+                questManager.checkCompletion(player, Quests.KILL_SKELETON, 1);
+            } else if (event.getEntityType().equals(EntityType.ZOMBIE)
+                    && questGUI.getItem(i).getType().equals(Material.ZOMBIE_HEAD)
+                    && Quests.KILL_ZOMBIE.isEnabled()
+                    && !Quests.KILL_ZOMBIE.isCompleted()) {
+                questManager.checkCompletion(player, Quests.KILL_ZOMBIE, 1);
+            } else if (event.getEntityType().equals(EntityType.PLAYER)
+                    && questGUI.getItem(i).getType().equals(Material.PLAYER_HEAD)
+                    && Quests.KILL_PLAYER.isEnabled()
+                    && !Quests.KILL_ZOMBIE.isCompleted()) {
+                questManager.checkCompletion(player, Quests.KILL_PLAYER, 1);
+            } else if (event.getEntityType().equals(EntityType.EVOKER)
+                    && questGUI.getItem(i).getType().equals(Material.TOTEM_OF_UNDYING)
+                    && Quests.KILL_EVOKER.isEnabled()
+                    && !Quests.KILL_EVOKER.isCompleted()) {
+                questManager.checkCompletion(player, Quests.KILL_EVOKER, 1);
+            } else if (event.getEntityType().equals(EntityType.BLAZE)
+                    && questGUI.getItem(i).getType().equals(Material.BLAZE_POWDER)
+                    && Quests.KILL_BLAZE.isEnabled()
+                    && !Quests.KILL_BLAZE.isCompleted()) {
+                questManager.checkCompletion(player, Quests.KILL_BLAZE, 1);
+            }
+        }
+
     }
 }

@@ -13,39 +13,38 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class QuestManager {
+    private final Map<UUID, Map<Quests, Integer>> playerProgressMap = new HashMap<>();
+    private final MegaQuests megaQuests;
     private File questProgressFile;
-    Map<UUID, Map<Quests, Integer>> playerProgressMap;
-
-    MegaQuests megaQuests;
     private int questGUIAmount = 5;
 
-    public QuestManager(MegaQuests megaQuests){
+    public QuestManager(MegaQuests megaQuests) {
         this.megaQuests = megaQuests;
-        playerProgressMap = new HashMap<>();
     }
-    public void checkCompletion(Player player, Quests quests, int progress){
-        addProgress(player.getUniqueId(), quests,progress);
+
+    public void checkCompletion(Player player, Quests quests, int progress) {
+        addProgress(player.getUniqueId(), quests, progress);
 
         player.sendMessage("Checked Progress");
-        if (megaQuests.getQuestManager().getProgress(player.getUniqueId(), quests) == quests.getTaskAmount()){
+        if (megaQuests.getQuestManager().getProgress(player.getUniqueId(), quests) == quests.getTaskAmount()) {
             BigDecimal rewardAmount = new BigDecimal(quests.getReward());
 
             try {
                 megaQuests.getEssentials().getUser(player).giveMoney(rewardAmount);
-            } catch (MaxMoneyException ex) {
-                throw new RuntimeException(ex);
+                player.sendMessage(ChatColor.GREEN + "You completed " + quests.getDisplay() + ChatColor.GREEN + " and got $" + quests.getReward());
+            } catch (MaxMoneyException exception) {
+                player.sendMessage("You have reached the maximum amount of money!");
             }
 
-            player.sendMessage(ChatColor.GREEN + "You completed " + quests.getDisplay() + ChatColor.GREEN + " and got $" + quests.getReward());
             quests.setCompleted(true);
         }
-
-
     }
 
     public void addProgress(UUID playerId, Quests quest, int amount) {
@@ -58,7 +57,7 @@ public class QuestManager {
         return questProgressMap.getOrDefault(quest, 0);
     }
 
-    public void createQuestsYml(){
+    public void createQuestsYml() {
         File dataFolder = megaQuests.getDataFolder();
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
@@ -74,47 +73,47 @@ public class QuestManager {
         }
         FileConfiguration config = YamlConfiguration.loadConfiguration(configFile);
 
-           long resetTimer = config.getLong("ResetTimer (in  minutes)", megaQuests.getCooldownManager().getResetTimer());
-           megaQuests.getCooldownManager().setResetTimer(resetTimer);
-           config.set("ResetTimer (in  minutes)", megaQuests.getCooldownManager().getResetTimer());
+        // https://yaml.org/spec/1.2.2/
+        // Do not use tabs/space for indentation, please.
+        long resetTimer = config.getLong("ResetTimer", megaQuests.getCooldownManager().getResetTimer());
+        megaQuests.getCooldownManager().setResetTimer(resetTimer);
+        config.set("ResetTimer", megaQuests.getCooldownManager().getResetTimer());
 
-           int questGUIAmount = config.getInt("QuestsInGUIAmount", getQuestGUIAmount());
-           setQuestGUIAmount(questGUIAmount);
-           config.set("QuestsInGUIAmount", getQuestGUIAmount());
+        updateQuestGUIAmountFromConfig(config.getInt("QuestsInGUIAmount", questGUIAmount));
+        config.set("QuestsInGUIAmount", questGUIAmount);
 
 
         for (Quests quest : Quests.values()) {
-            String questKey = quest.name();
+            String configPath = "Quests." + quest.name();
 
-            boolean enabled = config.getBoolean("Quests." + questKey + ".enabled", true);
+            boolean enabled = config.getBoolean(configPath + ".enabled", true);
             quest.setEnabled(enabled);
 
-            int maxTask = config.getInt("Quests." + questKey + ".maxTask", quest.getMaxTask());
+            int maxTask = config.getInt(configPath + ".maxTask", quest.getMaxTask());
             quest.setMaxTask(maxTask);
 
-            int minTask = config.getInt("Quests." + questKey + ".minTask", quest.getMinTask());
+            int minTask = config.getInt(configPath + ".minTask", quest.getMinTask());
             quest.setMinTask(minTask);
 
-            int reward = config.getInt("Quests." + questKey + ".reward", quest.getReward());
+            int reward = config.getInt(configPath + ".reward", quest.getReward());
             quest.setReward(reward);
 
 
-            config.set("Quests." + questKey + ".enabled", quest.isEnabled());
-            config.set("Quests." + questKey + ".minTask", quest.getMinTask());
-            config.set("Quests." + questKey + ".maxTask", quest.getMaxTask());
-            config.set("Quests." + questKey + ".reward", quest.getReward());
+            config.set(configPath + ".enabled", quest.isEnabled());
+            config.set(configPath + ".minTask", quest.getMinTask());
+            config.set(configPath + ".maxTask", quest.getMaxTask());
+            config.set(configPath + ".reward", quest.getReward());
         }
         try {
             config.save(configFile);
-        } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception if the file cannot be saved
+        } catch (IOException exception) {
+            Bukkit.getLogger().log(Level.SEVERE, String.format("Could not save config.yml to %s", configFile), exception);
         }
     }
 
 
-
     public void savePlayerQuestProgress(Player player) {
-        UUID playerId = player.getUniqueId();
+        UUID playerUUID = player.getUniqueId();
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(questProgressFile);
         ConfigurationSection questProgressSection = config.getConfigurationSection("questProgress");
@@ -122,9 +121,9 @@ public class QuestManager {
             questProgressSection = config.createSection("questProgress");
         }
 
-        Map<Quests, Integer> questProgressMap = playerProgressMap.getOrDefault(playerId, new HashMap<>());
+        Map<Quests, Integer> questProgressMap = playerProgressMap.getOrDefault(playerUUID, new HashMap<>());
         for (Map.Entry<Quests, Integer> entry : questProgressMap.entrySet()) {
-            questProgressSection.set(playerId.toString() + "." + entry.getKey().name(), entry.getValue());
+            questProgressSection.set(playerUUID + "." + entry.getKey().name(), entry.getValue());
         }
 
         try {
@@ -140,7 +139,7 @@ public class QuestManager {
         FileConfiguration config = YamlConfiguration.loadConfiguration(questProgressFile);
         ConfigurationSection questProgressSection = config.getConfigurationSection("questProgress");
         if (questProgressSection != null) {
-            Map<Quests, Integer> questProgressMap = new HashMap<>();
+            EnumMap<Quests, Integer> questProgressMap = new EnumMap<>(Quests.class);
             ConfigurationSection playerSection = questProgressSection.getConfigurationSection(playerId.toString());
             if (playerSection != null) {
                 for (String questName : playerSection.getKeys(false)) {
@@ -154,9 +153,7 @@ public class QuestManager {
     }
 
     public void resetPlayerQuestProgress(UUID playerId) {
-        if (playerProgressMap != null){
-            playerProgressMap.remove(playerId);
-        }
+        playerProgressMap.remove(playerId);
 
 
         FileConfiguration config = YamlConfiguration.loadConfiguration(questProgressFile);
@@ -186,30 +183,25 @@ public class QuestManager {
         }
     }
 
-
-    public int getQuestGUIAmount() {
-        return questGUIAmount;
-    }
-
     public Map<UUID, Map<Quests, Integer>> getPlayerProgressMap() {
         return playerProgressMap;
     }
 
-    public void setQuestGUIAmount(int questGUIAmount) {
+    public void updateQuestGUIAmountFromConfig(int questGUIAmount) {
         this.questGUIAmount = questGUIAmount;
     }
-    public int getStartingSlot(){
+
+    public int getStartingSlot() {
         int availableSlots = 27;
         int middleSlot = availableSlots / 2;
 
-        int startingSlot = middleSlot - (getQuestGUIAmount() / 2);
-        return startingSlot;
+        return middleSlot - (questGUIAmount / 2);
     }
-    public int getEndingSlot(){
+
+    public int getEndingSlot() {
         int availableSlots = 27;
         int middleSlot = availableSlots / 2;
 
-        int endingSlot = middleSlot + (getQuestGUIAmount() / 2);
-        return endingSlot;
+        return middleSlot + (questGUIAmount / 2);
     }
 }

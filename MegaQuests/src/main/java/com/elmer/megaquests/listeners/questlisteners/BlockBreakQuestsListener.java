@@ -13,24 +13,29 @@ import org.bukkit.inventory.Inventory;
 
 public class BlockBreakQuestsListener implements Listener {
     MegaQuests megaQuests;
-    public BlockBreakQuestsListener(MegaQuests megaQuests){
+
+    public BlockBreakQuestsListener(MegaQuests megaQuests) {
         this.megaQuests = megaQuests;
     }
 
     @EventHandler
-    public void onBlockBreak (BlockBreakEvent e){
-        Player player = e.getPlayer();
-        Block brokenBlock = e.getBlock();
+    public void onBlockBreak(BlockBreakEvent event) {
+        Player player = event.getPlayer();
+        Block brokenBlock = event.getBlock();
         Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
         QuestManager questManager = megaQuests.getQuestManager();
 
-
-        for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot(); i++){
-            if (brokenBlock.getType().equals(Material.DIAMOND_ORE) && questGUI.getItem(i).getType().equals(Material.DIAMOND_ORE) && Quests.MINEDIAMONDORE.isEnabled() && !Quests.MINEDIAMONDORE.isCompleted()){
-                questManager.checkCompletion(player, Quests.MINEDIAMONDORE,1);
-            }
-            if (brokenBlock.getType().equals(Material.IRON_ORE) && questGUI.getItem(i).getType().equals(Material.IRON_ORE) && Quests.MINEIRONORE.isEnabled() && !Quests.MINEIRONORE.isCompleted()){
-                questManager.checkCompletion(player, Quests.MINEIRONORE, 1);
+        for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot(); i++) {
+            if (brokenBlock.getType().equals(Material.DIAMOND_ORE)
+                    && questGUI.getItem(i).getType().equals(Material.DIAMOND_ORE)
+                    && Quests.MINE_DIAMOND_ORE.isEnabled()
+                    && !Quests.MINE_DIAMOND_ORE.isCompleted()) {
+                questManager.checkCompletion(player, Quests.MINE_DIAMOND_ORE, 1);
+            } else if (brokenBlock.getType().equals(Material.IRON_ORE)
+                    && questGUI.getItem(i).getType().equals(Material.IRON_ORE)
+                    && Quests.MINE_IRON_ORE.isEnabled()
+                    && !Quests.MINE_IRON_ORE.isCompleted()) {
+                questManager.checkCompletion(player, Quests.MINE_IRON_ORE, 1);
             }
         }
 

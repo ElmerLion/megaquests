@@ -1,58 +1,55 @@
 package com.elmer.megaquests.managers;
+
 import com.elmer.megaquests.MegaQuests;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.*;
-import java.sql.Time;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class CooldownManager {
     private final Map<UUID, Long> cooldowns;
     private final File dataFile;
-    private MegaQuests megaQuests;
+    private final MegaQuests megaQuests;
     private long timeToWait;
     private long resetTimer = 1440;
 
 
     public CooldownManager(File dataFile, MegaQuests megaQuests) {
         this.dataFile = dataFile;
-        this.cooldowns = loadCooldownsFromFile();
         this.megaQuests = megaQuests;
+        this.cooldowns = loadCooldownsFromFile();
     }
 
     public void checkCooldown(Player player) {
-        UUID playerId = player.getUniqueId();
+        UUID playerUUID = player.getUniqueId();
         long currentTime = System.currentTimeMillis();
-        long cooldownEndTime = cooldowns.getOrDefault(playerId, 0L);
+        long cooldownEndTime = cooldowns.getOrDefault(playerUUID, 0L);
 
         if (currentTime >= cooldownEndTime) {
             // Cooldown is not active, update the cooldown time
             long newCooldownEndTime = currentTime + TimeUnit.MINUTES.toMillis(resetTimer);
-            cooldowns.put(playerId, newCooldownEndTime);
+
+            cooldowns.put(playerUUID, newCooldownEndTime);
             saveCooldownsToFile();
+
             // Continue with the rest of your logic
             timeToWait = newCooldownEndTime - currentTime;
             setTimeToWait(timeToWait);
 
             megaQuests.getQuestGUICommand().createQuestGUI(player);
-
-
-
         } else {
             timeToWait = cooldownEndTime - currentTime;
+
             setTimeToWait(timeToWait);
             megaQuests.getQuestGUICommand().openQuestGUI(player);
         }
     }
 
     private Map<UUID, Long> loadCooldownsFromFile() {
-        Map<UUID, Long> cooldowns = new HashMap<>();
+        Map<UUID, Long> tempCooldownsMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
             String line;
@@ -61,14 +58,14 @@ public class CooldownManager {
                 if (parts.length == 2) {
                     UUID playerId = UUID.fromString(parts[0]);
                     long cooldownEndTime = Long.parseLong(parts[1]);
-                    cooldowns.put(playerId, cooldownEndTime);
+                    tempCooldownsMap.put(playerId, cooldownEndTime);
                 }
             }
         } catch (IOException e) {
             // Handle exception if the file cannot be read
         }
 
-        return cooldowns;
+        return tempCooldownsMap;
     }
 
     private void saveCooldownsToFile() {
@@ -87,7 +84,8 @@ public class CooldownManager {
         cooldowns.remove(player.getUniqueId());
         saveCooldownsToFile();
     }
-    public void resetAllCooldowns (){
+
+    public void resetAllCooldowns() {
         cooldowns.clear();
         saveCooldownsToFile();
     }
@@ -95,10 +93,18 @@ public class CooldownManager {
     public long getTimeToWait() {
         return timeToWait;
     }
-    public void setTimeToWait(long amount) { timeToWait = amount; }
 
-    public long getResetTimer() {return resetTimer;}
-    public long setResetTimer(long minutes) { resetTimer = minutes; return resetTimer; }
+    public void setTimeToWait(long amount) {
+        timeToWait = amount;
+    }
+
+    public long getResetTimer() {
+        return resetTimer;
+    }
+
+    public void setResetTimer(long minutes) {
+        resetTimer = minutes;
+    }
 
     public Map<UUID, Long> getCooldowns() {
         return cooldowns;
