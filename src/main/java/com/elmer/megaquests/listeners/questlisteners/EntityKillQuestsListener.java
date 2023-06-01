@@ -10,6 +10,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.Inventory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class EntityKillQuestsListener implements Listener {
 
     MegaQuests megaQuests;
@@ -26,7 +29,48 @@ public class EntityKillQuestsListener implements Listener {
             QuestManager questManager = megaQuests.getQuestManager();
 
             if (questGUI != null){
-                for (int i = megaQuests.getQuestManager().getStartingSlot(); i < megaQuests.getQuestManager().getEndingSlot(); i++){
+
+                Map<EntityType, Quests> entityToQuest = new HashMap<>();
+                entityToQuest.put(EntityType.SKELETON, Quests.KILLSKELETON);
+                entityToQuest.put(EntityType.ZOMBIE, Quests.KILLZOMBIE);
+                entityToQuest.put(EntityType.PLAYER, Quests.KILLPLAYER);
+                entityToQuest.put(EntityType.CREEPER, Quests.KILLCREEPER);
+                entityToQuest.put(EntityType.SPIDER, Quests.KILLSPIDER);
+                entityToQuest.put(EntityType.ENDERMAN, Quests.KILLENDERMAN);
+                entityToQuest.put(EntityType.WITCH, Quests.KILLWITCH);
+                entityToQuest.put(EntityType.CAVE_SPIDER, Quests.KILLCAVESPIDER);
+                entityToQuest.put(EntityType.BLAZE, Quests.KILLBLAZE);
+                entityToQuest.put(EntityType.GHAST, Quests.KILLGHAST);
+                entityToQuest.put(EntityType.MAGMA_CUBE, Quests.KILLMAGMACUBE);
+                entityToQuest.put(EntityType.DROWNED, Quests.KILLDROWNED);
+                entityToQuest.put(EntityType.PHANTOM, Quests.KILLPHANTOM);
+                entityToQuest.put(EntityType.HUSK, Quests.KILLHUSK);
+                entityToQuest.put(EntityType.STRAY, Quests.KILLSTRAY);
+                entityToQuest.put(EntityType.WITHER_SKELETON, Quests.KILLWITHERSKELETON);
+                entityToQuest.put(EntityType.EVOKER, Quests.KILLEVOKER);
+                entityToQuest.put(EntityType.VEX, Quests.KILLVEX);
+                entityToQuest.put(EntityType.PILLAGER, Quests.KILLPILLAGER);
+                entityToQuest.put(EntityType.RAVAGER, Quests.KILLRAVAGER);
+                entityToQuest.put(EntityType.VINDICATOR, Quests.KILLVINDICATOR);
+                entityToQuest.put(EntityType.ENDERMITE, Quests.KILLENDERMITE);
+                entityToQuest.put(EntityType.GUARDIAN, Quests.KILLGUARDIAN);
+                entityToQuest.put(EntityType.ELDER_GUARDIAN, Quests.KILLELDERGUARDIAN);
+                entityToQuest.put(EntityType.SHULKER, Quests.KILLSHULKER);
+                entityToQuest.put(EntityType.SLIME, Quests.KILLSLIME);
+                entityToQuest.put(EntityType.SILVERFISH, Quests.KILLSILVERFISH);
+                entityToQuest.put(EntityType.ENDER_DRAGON, Quests.KILLENDERDRAGON);
+                entityToQuest.put(EntityType.WITHER, Quests.KILLWITHER);
+
+                for (int i = megaQuests.getQuestManager().getStartingSlot(); i < megaQuests.getQuestManager().getEndingSlot() + 1; i++){
+                    if(entityToQuest.containsKey(e.getEntityType())) {
+                        Quests associatedQuest = entityToQuest.get(e.getEntityType());
+                        if (questGUI.getItem(i).getType().equals(associatedQuest.getItemDisplay()) && !questManager.checkCompletedEnabled(player, associatedQuest)){
+                            questManager.checkCompletion(player, associatedQuest, 1);
+                        }
+                    }
+                }
+
+                /*for (int i = megaQuests.getQuestManager().getStartingSlot(); i < megaQuests.getQuestManager().getEndingSlot() + 1; i++){
                     if (e.getEntityType().equals(EntityType.SKELETON) && questGUI.getItem(i).getType() == Quests.KILLSKELETON.getItemDisplay() && !questManager.checkCompletedEnabled(player, Quests.KILLSKELETON)){
                         questManager.checkCompletion(player, Quests.KILLSKELETON, 1);
                     }
@@ -140,7 +184,7 @@ public class EntityKillQuestsListener implements Listener {
                         questManager.checkCompletion(player, Quests.KILLWITHER, 1);
                     }
 
-                }
+                }*/
 
 
 

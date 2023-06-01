@@ -45,7 +45,7 @@ public class EnchantingQuestsListener implements Listener {
                     || enchantedItemType == Material.GOLDEN_PICKAXE
                     || enchantedItemType == Material.GOLDEN_SHOVEL;
 
-            for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot(); i++){
+            for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot() + 1; i++){
                 if (isDiamondTool && isDiamondTool(questGUI.getItem(i).getType())
                         && !questManager.checkCompletedEnabled(player, Quests.ENCHANTDIAMONDTOOL)){
                     questManager.checkCompletion(player, Quests.ENCHANTDIAMONDTOOL, 1);

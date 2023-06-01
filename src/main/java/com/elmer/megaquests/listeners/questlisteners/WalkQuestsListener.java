@@ -12,6 +12,9 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.Inventory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class WalkQuestsListener implements Listener {
     MegaQuests megaQuests;
     public WalkQuestsListener(MegaQuests megaQuests){
@@ -27,20 +30,24 @@ public class WalkQuestsListener implements Listener {
             Location to = e.getTo();
             Player player = e.getPlayer();
             QuestManager questManager = megaQuests.getQuestManager();
-            for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot(); i++){
+
+            Map<Biome, Quests> biomeToQuest = new HashMap<>();
+            biomeToQuest.put(Biome.BADLANDS, Quests.VISITBADLANDS);
+            biomeToQuest.put(Biome.DEEP_DARK, Quests.VISITDEEPDARK);
+            biomeToQuest.put(Biome.SWAMP, Quests.VISITSWAMP);
+
+            for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot() +1; i++){
                 if (questGUI.getItem(i).getType().equals(Material.LEATHER_BOOTS) && !questManager.checkCompletedEnabled(player, Quests.PLAYERWALK)){
                     if (from.getBlockX() != to.getBlockX() || from.getBlockY() != to.getBlockY() || from.getBlockZ() != to.getBlockZ()) {
                         questManager.checkCompletion(player, Quests.PLAYERWALK, 1);
                     }
                 }
-                if (player.getLocation().getBlock().getBiome().equals(Biome.BADLANDS) && !questManager.checkCompletedEnabled(player, Quests.VISITBADLANDS)){
-                    questManager.checkCompletion(player, Quests.VISITBADLANDS, 1);
-                }
-                if(player.getLocation().getBlock().getBiome().equals(Biome.SWAMP) && !questManager.checkCompletedEnabled(player, Quests.VISITSWAMP)){
-                    questManager.checkCompletion(player, Quests.VISITSWAMP, 1);
-                }
-                if(player.getLocation().getBlock().getBiome().equals(Biome.DEEP_DARK) && !questManager.checkCompletedEnabled(player, Quests.VISITDEEPDARK)){
-                    questManager.checkCompletion(player, Quests.VISITDEEPDARK, 1);
+                if (biomeToQuest.containsKey(player.getLocation().getBlock().getBiome())){
+                    Quests associatedQuest = biomeToQuest.get(player.getLocation().getBlock().getBiome());
+                    if (questGUI.getItem(i).getType().equals(associatedQuest.getItemDisplay())
+                            && !questManager.checkCompletedEnabled(player, associatedQuest)){
+                        questManager.checkCompletion(player, associatedQuest, 1);
+                    }
                 }
             }
         }

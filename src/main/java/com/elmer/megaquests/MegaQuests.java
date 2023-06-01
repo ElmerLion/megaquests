@@ -37,6 +37,8 @@ public final class MegaQuests extends JavaPlugin {
     private QuestSettingsGUIListener questSettingsGUIListener;
     private CraftingQuestsListener craftingQuestsListener;
     private QuestSettingsGUI questSettingsGUI;
+    private TameQuestsListener tameQuestsListener;
+    private HarvestQuestsListener harvestQuestsListener;
     private File dataFile = new File(getDataFolder(), "cooldowns.dat");
 
     @Override
@@ -60,6 +62,8 @@ public final class MegaQuests extends JavaPlugin {
         questSettingsGUIListener = new QuestSettingsGUIListener(this);
         joinQuitListener = new JoinQuitListener(this);
         craftingQuestsListener = new CraftingQuestsListener(this);
+        tameQuestsListener = new TameQuestsListener(this);
+        harvestQuestsListener = new HarvestQuestsListener(this);
 
 
         getCommand("quests").setExecutor(new QuestGUICommand(this));
@@ -76,6 +80,8 @@ public final class MegaQuests extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(questSettingsGUIListener, this);
         Bukkit.getPluginManager().registerEvents(joinQuitListener, this);
         Bukkit.getPluginManager().registerEvents(craftingQuestsListener, this);
+        Bukkit.getPluginManager().registerEvents(tameQuestsListener, this);
+        Bukkit.getPluginManager().registerEvents(harvestQuestsListener, this);
 
         cooldownManager.resetAllCooldowns();
         questManager.completedQuests.clear();

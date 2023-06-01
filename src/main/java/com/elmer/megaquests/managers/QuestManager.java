@@ -4,10 +4,13 @@ import com.elmer.megaquests.MegaQuests;
 import com.elmer.megaquests.enums.Quests;
 import net.ess3.api.MaxMoneyException;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 
 import java.io.File;
 import java.io.IOException;
@@ -299,5 +302,10 @@ public class QuestManager {
 
     public Map<UUID, Map<Quests, Integer>> getPlayerTaskAmountsMap() {
         return playerTaskAmountsMap;
+    }
+    public boolean checkBlockBreakQuest(Player player, Block brokenBlock, Material target, Quests quest, int i){
+        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
+        player.sendMessage("Checking");
+        return brokenBlock.getType().equals(target) && questGUI.getItem(i).getType().equals(quest.getItemDisplay()) && !checkCompletedEnabled(player, quest);
     }
 }

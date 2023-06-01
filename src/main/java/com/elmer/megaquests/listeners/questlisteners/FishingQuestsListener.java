@@ -12,7 +12,9 @@ import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class FishingQuestsListener implements Listener {
 
@@ -41,16 +43,24 @@ public class FishingQuestsListener implements Listener {
                         Material.SADDLE
                 );
 
-                for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot(); i++ ){
-                    if (caughtMaterial == Material.COD && questGUI.getItem(i).getType().equals(Material.COD) && !questManager.checkCompletedEnabled(player, Quests.FISHCOD)) {
-                        questManager.checkCompletion(player, Quests.FISHCOD, 1);
+                Map<Material, Quests> fishToQuest = new HashMap<>();
+                fishToQuest.put(Material.COD, Quests.FISHCOD);
+                fishToQuest.put(Material.SALMON, Quests.FISHSALMON);
+                fishToQuest.put(Material.TROPICAL_FISH, Quests.FISHTROPICAL);
+                fishToQuest.put(Material.PUFFERFISH, Quests.FISHPUFFERFISH);
+
+
+                if (fishToQuest.containsKey(caughtMaterial)){
+                    for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot() + 1; i++ ){
+                        Quests associatedQuest = fishToQuest.get(caughtMaterial);
+                        if (questGUI.getItem(i).getType().equals(associatedQuest.getItemDisplay())
+                                && !questManager.checkCompletedEnabled(player, associatedQuest)){
+                            questManager.checkCompletion(player, associatedQuest, 1);
+                        }
                     }
-                    if (caughtMaterial == Material.SALMON && questGUI.getItem(i).getType().equals(Material.SALMON) && !questManager.checkCompletedEnabled(player, Quests.FISHSALMON)) {
-                        questManager.checkCompletion(player, Quests.FISHSALMON, 1);
-                    }
-                    if (caughtMaterial == Material.TROPICAL_FISH && questGUI.getItem(i).getType().equals(Material.TROPICAL_FISH) && !questManager.checkCompletedEnabled(player,Quests.FISHTROPICAL)) {
-                        questManager.checkCompletion(player, Quests.FISHTROPICAL, 1);
-                    }
+                }
+
+                for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot() + 1; i++ ){
                     if(treasures.contains(caughtMaterial) && questGUI.getItem(i).getType().equals(Material.GOLD_BLOCK) && !questManager.checkCompletedEnabled(player, Quests.FISHTREASURE)){
                         questManager.checkCompletion(player, Quests.FISHTREASURE, 1);
                     }

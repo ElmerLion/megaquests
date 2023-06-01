@@ -136,7 +136,7 @@ public class QuestSettingsGUIListener implements Listener {
                     click(player);
                     buildClickedQuestInv(player);
                 }
-                if (displayName.equals(ChatColor.GOLD + "Change time to reset quests")){
+                if (displayName.equals(ChatColor.GOLD + "Change time to reset quests, takes effect after current timer ends")){
                     CooldownManager cooldownManager = megaQuests.getCooldownManager();
                     if (click.isRightClick() && !click.isShiftClick()){
                         cooldownManager.addMinutesResetTimer(-120);
