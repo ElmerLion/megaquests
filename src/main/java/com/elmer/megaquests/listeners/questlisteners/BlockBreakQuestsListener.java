@@ -15,9 +15,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BlockBreakQuestsListener implements Listener {
-    MegaQuests megaQuests;
-    public BlockBreakQuestsListener(MegaQuests megaQuests){
+    private final MegaQuests megaQuests;
+    private final QuestManager questManager;
+    public BlockBreakQuestsListener(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
+        this.questManager = questManager;
     }
 
     @EventHandler
@@ -44,7 +46,6 @@ public class BlockBreakQuestsListener implements Listener {
 
             if (blockToQuest.containsKey(brokenBlockType)){
                 Quests associatedQuest = blockToQuest.get(brokenBlockType);
-                QuestManager questManager = megaQuests.getQuestManager();
                 for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot() + 1; i++){
                     if (questGUI.getItem(i).getType().equals(associatedQuest.getItemDisplay())
                             && !questManager.checkCompletedEnabled(player, associatedQuest)){

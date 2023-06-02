@@ -17,29 +17,13 @@ import com.earth2me.essentials.Essentials;
 import java.io.File;
 
 public final class MegaQuests extends JavaPlugin {
-
-    // GUI att välja quest (command för det)
-    // Quests: Minea diamonds (Blockbreak lsitener), döda mobs (entitydeathlistener), fiska fiskar (fishing listener?)
-    // Essentials API för rewards
-
     private Essentials essentials;
     private CooldownManager cooldownManager;
     private QuestGUICommand questGUICommand;
-    private EntityKillQuestsListener entityKillQuestsListener;
     private QuestManager questManager;
     private QuestSettingsManager questSettingsManager;
-    private BlockBreakQuestsListener blockBreakQuestsListener;
-    private ResetCooldownCommand resetCooldownCommand;
-    private EnchantingQuestsListener enchantingQuestsListener;
-    private FishingQuestsListener fishingQuestsListener;
-    private WalkQuestsListener walkQuestsListener;
-    private JoinQuitListener joinQuitListener;
-    private QuestSettingsGUIListener questSettingsGUIListener;
-    private CraftingQuestsListener craftingQuestsListener;
     private QuestSettingsGUI questSettingsGUI;
-    private TameQuestsListener tameQuestsListener;
-    private HarvestQuestsListener harvestQuestsListener;
-    private File dataFile = new File(getDataFolder(), "cooldowns.dat");
+    private final File dataFile = new File(getDataFolder(), "cooldowns.dat");
 
     @Override
     public void onEnable() {
@@ -47,43 +31,31 @@ public final class MegaQuests extends JavaPlugin {
         getCommand("questsettings").setExecutor(new QuestSettingsGUI(this));
         getCommand("questsettings").setTabCompleter(new QuestSettingsCompleter());
 
-        essentials = Essentials.getPlugin(Essentials.class);
-        cooldownManager = new CooldownManager(dataFile, this);
-        questGUICommand = new QuestGUICommand(this);
         questManager = new QuestManager(this);
         questSettingsManager = new QuestSettingsManager(this);
+        essentials = Essentials.getPlugin(Essentials.class);
+        cooldownManager = new CooldownManager(dataFile, this);
+        questGUICommand = new QuestGUICommand(this ,questManager);
         questSettingsGUI = new QuestSettingsGUI(this);
 
-        blockBreakQuestsListener = new BlockBreakQuestsListener(this);
-        enchantingQuestsListener = new EnchantingQuestsListener(this);
-        fishingQuestsListener = new FishingQuestsListener(this);
-        walkQuestsListener =  new WalkQuestsListener(this);
-        entityKillQuestsListener = new EntityKillQuestsListener(this);
-        questSettingsGUIListener = new QuestSettingsGUIListener(this);
-        joinQuitListener = new JoinQuitListener(this);
-        craftingQuestsListener = new CraftingQuestsListener(this);
-        tameQuestsListener = new TameQuestsListener(this);
-        harvestQuestsListener = new HarvestQuestsListener(this);
-
-
-        getCommand("quests").setExecutor(new QuestGUICommand(this));
+        getCommand("quests").setExecutor(questGUICommand);
         getCommand("resetcooldown").setExecutor(new ResetCooldownCommand(this));
 
 
-        Bukkit.getPluginManager().registerEvents(entityKillQuestsListener, this);
+        Bukkit.getPluginManager().registerEvents(new EntityKillQuestsListener(this, questManager), this);
         Bukkit.getPluginManager().registerEvents(new QuestGUIListener(), this);
-        Bukkit.getPluginManager().registerEvents(joinQuitListener, this);
-        Bukkit.getPluginManager().registerEvents(blockBreakQuestsListener, this);
-        Bukkit.getPluginManager().registerEvents(enchantingQuestsListener, this);
-        Bukkit.getPluginManager().registerEvents(walkQuestsListener,this);
-        Bukkit.getPluginManager().registerEvents(fishingQuestsListener, this);
-        Bukkit.getPluginManager().registerEvents(questSettingsGUIListener, this);
-        Bukkit.getPluginManager().registerEvents(joinQuitListener, this);
-        Bukkit.getPluginManager().registerEvents(craftingQuestsListener, this);
-        Bukkit.getPluginManager().registerEvents(tameQuestsListener, this);
-        Bukkit.getPluginManager().registerEvents(harvestQuestsListener, this);
+        Bukkit.getPluginManager().registerEvents(new BlockBreakQuestsListener(this, questManager), this);
+        Bukkit.getPluginManager().registerEvents(new EnchantingQuestsListener(this, questManager), this);
+        Bukkit.getPluginManager().registerEvents(new WalkQuestsListener(this),this);
+        Bukkit.getPluginManager().registerEvents(new FishingQuestsListener(this, questManager), this);
+        Bukkit.getPluginManager().registerEvents(new QuestSettingsGUIListener(this, questManager), this);
+        Bukkit.getPluginManager().registerEvents(new JoinQuitListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new CraftingQuestsListener(this, questManager), this);
+        Bukkit.getPluginManager().registerEvents(new TameQuestsListener(this, questManager), this);
+        Bukkit.getPluginManager().registerEvents(new HarvestQuestsListener(this,questManager), this);
 
         cooldownManager.resetAllCooldowns();
+
         questManager.completedQuests.clear();
 
         questManager.setQuestProgressFile(this);
@@ -94,6 +66,7 @@ public final class MegaQuests extends JavaPlugin {
     public CooldownManager getCooldownManager() {
         return cooldownManager;
     }
+
     public QuestGUICommand getQuestGUICommand(){
         return questGUICommand;
     }
@@ -107,7 +80,6 @@ public final class MegaQuests extends JavaPlugin {
     }
 
     public QuestSettingsManager getQuestSettingsManager() {return questSettingsManager;}
-    public QuestSettingsGUI getQuestSettingsGUI() {return questSettingsGUI;}
 
     @Override
     public void onDisable() {

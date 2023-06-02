@@ -12,9 +12,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 public class EnchantingQuestsListener implements Listener {
-    MegaQuests megaQuests;
-    public EnchantingQuestsListener(MegaQuests megaQuests){
+    private final MegaQuests megaQuests;
+    private final QuestManager questManager;
+    public EnchantingQuestsListener(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
+        this.questManager = questManager;
     }
 
     @EventHandler
@@ -26,6 +28,7 @@ public class EnchantingQuestsListener implements Listener {
             Player player = e.getEnchanter();
             ItemStack enchantedItem = e.getItem();
             QuestManager questManager = megaQuests.getQuestManager();
+
             Material enchantedItemType = enchantedItem.getType();
             boolean isDiamondTool = enchantedItemType == Material.DIAMOND_AXE
                     || enchantedItemType == Material.DIAMOND_HOE
@@ -33,12 +36,12 @@ public class EnchantingQuestsListener implements Listener {
                     || enchantedItemType == Material.DIAMOND_PICKAXE
                     || enchantedItemType == Material.DIAMOND_SHOVEL;
 
-
             boolean isIronTool = enchantedItemType == Material.IRON_AXE
                     || enchantedItemType == Material.IRON_HOE
                     || enchantedItemType == Material.IRON_SWORD
                     || enchantedItemType == Material.IRON_PICKAXE
                     || enchantedItemType == Material.IRON_SHOVEL;
+
             boolean isGoldTool = enchantedItemType == Material.GOLDEN_AXE
                     || enchantedItemType == Material.GOLDEN_HOE
                     || enchantedItemType == Material.GOLDEN_SWORD

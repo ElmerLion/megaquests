@@ -13,22 +13,19 @@ import java.util.*;
 
 public class QuestSettingsManager {
 
-    private List<Quests> questsByCategory;
     MegaQuests megaQuests;
     public QuestSettingsManager(MegaQuests megaQuests){
         this.megaQuests = megaQuests;
-        questsByCategory = new ArrayList<Quests>() {
-        };
     }
 
     public void createGUIWithCategory(Player player, String category){
+        List<Quests> questsByCategory = new ArrayList<Quests>() {};
 
         if (!categoryExists(category)){
             player.sendMessage(ChatColor.RED + "That category doesn't exist!");
             return;
         }
 
-        questsByCategory.clear();
         for (Quests quest : Quests.values()){
             if (quest.getCategory().equals(category)){
                 questsByCategory.add(quest);

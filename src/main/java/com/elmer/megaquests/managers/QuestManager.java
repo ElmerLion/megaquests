@@ -1,5 +1,6 @@
 package com.elmer.megaquests.managers;
 
+import com.elmer.megaquests.ItemBuilder;
 import com.elmer.megaquests.MegaQuests;
 import com.elmer.megaquests.enums.Quests;
 import net.ess3.api.MaxMoneyException;
@@ -11,6 +12,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +32,6 @@ public class QuestManager {
 
     public QuestManager(MegaQuests megaQuests){
         this.megaQuests = megaQuests;
-        playerProgressMap = new HashMap<>();
     }
     public void checkCompletion(Player player, Quests quests, int progress){
         UUID playerId = player.getUniqueId();
@@ -39,13 +40,13 @@ public class QuestManager {
         Map<Quests, Integer> playerTaskAmountMap = playerTaskAmountsMap.getOrDefault(playerId, new HashMap<>());
         int taskAmount = playerTaskAmountMap.getOrDefault(quests, 0);
 
-        if (megaQuests.getQuestManager().getProgress(player.getUniqueId(), quests) == taskAmount){
+        if (getProgress(player.getUniqueId(), quests) == taskAmount){
             BigDecimal rewardAmount = new BigDecimal(quests.getReward());
 
             try {
                 megaQuests.getEssentials().getUser(player).giveMoney(rewardAmount);
             } catch (MaxMoneyException ex) {
-                throw new RuntimeException(ex);
+                player.sendMessage(ChatColor.RED + "You have reached the max amount of money!");
             }
 
             player.sendMessage(ChatColor.GREEN + "You completed " + quests.getDisplay() + ChatColor.GREEN + " and got $" + quests.getReward());
@@ -69,6 +70,7 @@ public class QuestManager {
     }
 
     public void createQuestsYml(){
+        playerProgressMap = new HashMap<>();
         File dataFolder = megaQuests.getDataFolder();
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
@@ -99,6 +101,9 @@ public class QuestManager {
             boolean enabled = config.getBoolean("Quests." + questKey + ".enabled", true);
             quest.setEnabled(enabled);
 
+            String displayName = config.getString("Quests." + questKey + ".displayName", quest.getDisplay());
+            quest.setDisplay(displayName);
+
             int maxTask = config.getInt("Quests." + questKey + ".maxTask", quest.getMaxTask());
             quest.setMaxTask(maxTask);
 
@@ -110,6 +115,7 @@ public class QuestManager {
 
 
             config.set("Quests." + questKey + ".enabled", quest.isEnabled());
+            config.set("Quests." + questKey + ".displayName", quest.getDisplay());
             config.set("Quests." + questKey + ".minTask", quest.getMinTask());
             config.set("Quests." + questKey + ".maxTask", quest.getMaxTask());
             config.set("Quests." + questKey + ".reward", quest.getReward());
@@ -117,12 +123,8 @@ public class QuestManager {
         try {
             config.save(configFile);
         } catch (IOException e) {
-            e.printStackTrace(); // Handle the exception if the file cannot be saved
+            e.printStackTrace();
         }
-    }
-
-    public FileConfiguration getConfig() {
-        return config;
     }
     public void updateConfig(){
         config = YamlConfiguration.loadConfiguration(configFile);
@@ -163,12 +165,12 @@ public class QuestManager {
 
         Map<Quests, Integer> questProgressMap = playerProgressMap.getOrDefault(playerId, new HashMap<>());
         for (Map.Entry<Quests, Integer> entry : questProgressMap.entrySet()) {
-            questProgressSection.set(playerId.toString() + "." + entry.getKey().name(), entry.getValue());
+            questProgressSection.set(playerId + "." + entry.getKey().name(), entry.getValue());
         }
 
         Map<Quests, Integer> taskAmountMap = playerTaskAmountsMap.getOrDefault(playerId, new HashMap<>());
         for (Map.Entry<Quests, Integer> entry : taskAmountMap.entrySet()) {
-            taskAmountSection.set(playerId.toString() + "." + entry.getKey().name(), entry.getValue());
+            taskAmountSection.set(playerId + "." + entry.getKey().name(), entry.getValue());
         }
 
         try {
@@ -186,7 +188,7 @@ public class QuestManager {
         ConfigurationSection taskAmountSection = config.getConfigurationSection("taskAmount");
 
         if (questProgressSection != null) {
-            Map<Quests, Integer> questProgressMap = new HashMap<>();
+            EnumMap<Quests, Integer> questProgressMap = new EnumMap<>(Quests.class);
             ConfigurationSection playerSection = questProgressSection.getConfigurationSection(playerId.toString());
             if (playerSection != null) {
                 for (String questName : playerSection.getKeys(false)) {
@@ -302,10 +304,5 @@ public class QuestManager {
 
     public Map<UUID, Map<Quests, Integer>> getPlayerTaskAmountsMap() {
         return playerTaskAmountsMap;
-    }
-    public boolean checkBlockBreakQuest(Player player, Block brokenBlock, Material target, Quests quest, int i){
-        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
-        player.sendMessage("Checking");
-        return brokenBlock.getType().equals(target) && questGUI.getItem(i).getType().equals(quest.getItemDisplay()) && !checkCompletedEnabled(player, quest);
     }
 }

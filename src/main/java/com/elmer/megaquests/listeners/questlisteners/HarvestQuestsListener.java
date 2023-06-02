@@ -16,10 +16,12 @@ import java.util.Map;
 
 public class HarvestQuestsListener implements Listener {
 
-    MegaQuests megaQuests;
+    private final MegaQuests megaQuests;
+    private final QuestManager questManager;
 
-    public HarvestQuestsListener(MegaQuests megaQuests){
+    public HarvestQuestsListener(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
+        this.questManager = questManager;
     }
 
     @EventHandler

@@ -18,8 +18,7 @@ public class QuestSettingsGUI implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] args) {
 
-        if (commandSender instanceof Player){
-            Player player = (Player) commandSender;
+        if (commandSender instanceof Player player){
             if (player.hasPermission("megaquests.questsettings")){
                 if (args.length == 1){
                     megaQuests.getQuestSettingsManager().createGUIWithCategory(player, args[0]);

@@ -6,6 +6,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ItemBuilder {
 
@@ -17,8 +18,10 @@ public class ItemBuilder {
 
     public ItemBuilder withDisplayName(String displayName) {
         ItemMeta itemMeta = item.getItemMeta();
-        itemMeta.setDisplayName(displayName);
-        item.setItemMeta(itemMeta);
+        if (Objects.nonNull(itemMeta)) {
+            itemMeta.setDisplayName(displayName);
+            item.setItemMeta(itemMeta);
+        }
         return this;
     }
 

@@ -10,15 +10,16 @@ import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.inventory.Inventory;
 
 public class TameQuestsListener implements Listener {
-    MegaQuests megaQuests;
+    private final MegaQuests megaQuests;
+    private final QuestManager questManager;
 
-    public TameQuestsListener(MegaQuests megaQuests){
+    public TameQuestsListener(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
+        this.questManager = questManager;
     }
 
     @EventHandler
     public void onTame (EntityTameEvent e){
-        QuestManager questManager = megaQuests.getQuestManager();
         Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
 
         if (e.getOwner() instanceof Player && questGUI != null  ){
@@ -30,7 +31,6 @@ public class TameQuestsListener implements Listener {
                 if (e.getEntity() instanceof Wolf && questGUI.getItem(i).getType().equals(Quests.TAMEWOLF.getItemDisplay()) && !questManager.checkCompletedEnabled(player, Quests.TAMEWOLF)){
                     questManager.checkCompletion(player, Quests.TAMEWOLF, 1);
                 }
-                //if (e.getEntity() instanceof Cat && questGUI.getItem(i).getType().equals())
             }
 
         }

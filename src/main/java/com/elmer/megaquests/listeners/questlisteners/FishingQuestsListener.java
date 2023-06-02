@@ -18,9 +18,11 @@ import java.util.Map;
 
 public class FishingQuestsListener implements Listener {
 
-    MegaQuests megaQuests;
-    public FishingQuestsListener(MegaQuests megaQuests){
+    private final MegaQuests megaQuests;
+    private final QuestManager questManager;
+    public FishingQuestsListener(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
+        this.questManager = questManager;
     }
 
     @EventHandler
@@ -32,7 +34,6 @@ public class FishingQuestsListener implements Listener {
 
             if (questGUI != null){
                 Player player = e.getPlayer();
-                QuestManager questManager = megaQuests.getQuestManager();
                 Material caughtMaterial = ((CraftItem) e.getCaught()).getItemStack().getType();
 
                 List<Material> treasures = Arrays.asList(

@@ -51,7 +51,7 @@ public class CooldownManager {
     }
 
     private Map<UUID, Long> loadCooldownsFromFile() {
-        Map<UUID, Long> cooldowns = new HashMap<>();
+        Map<UUID, Long> tempCooldownsMap = new HashMap<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(dataFile))) {
             String line;
@@ -60,14 +60,14 @@ public class CooldownManager {
                 if (parts.length == 2) {
                     UUID playerId = UUID.fromString(parts[0]);
                     long cooldownEndTime = Long.parseLong(parts[1]);
-                    cooldowns.put(playerId, cooldownEndTime);
+                    tempCooldownsMap.put(playerId, cooldownEndTime);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return cooldowns;
+        return tempCooldownsMap;
     }
 
     private void saveCooldownsToFile() {
@@ -94,10 +94,17 @@ public class CooldownManager {
     public long getTimeToWait() {
         return timeToWait;
     }
-    public void setTimeToWait(long amount) { timeToWait = amount; }
+    public void setTimeToWait(long amount) {
+        timeToWait = amount;
+    }
 
-    public long getResetTimer() {return resetTimer;}
-    public long setResetTimer(long minutes) { resetTimer = minutes; return resetTimer; }
+    public long getResetTimer() {
+        return resetTimer;
+    }
+
+    public void setResetTimer(long minutes) {
+        resetTimer = minutes;
+    }
     public void addMinutesResetTimer(long minutes) {
         resetTimer += minutes;
         if (resetTimer <= 0){

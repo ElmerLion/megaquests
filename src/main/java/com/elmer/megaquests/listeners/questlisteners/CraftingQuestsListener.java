@@ -16,10 +16,12 @@ import java.util.Map;
 
 public class CraftingQuestsListener implements Listener {
 
-    MegaQuests megaQuests;
+    private final MegaQuests megaQuests;
+    private final QuestManager questManager;
 
-    public CraftingQuestsListener(MegaQuests megaQuests){
+    public CraftingQuestsListener(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
+        this.questManager = questManager;
     }
 
     @EventHandler
@@ -29,7 +31,6 @@ public class CraftingQuestsListener implements Listener {
             Material craftedItem = e.getCurrentItem().getType();
 
             Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
-            QuestManager questManager = megaQuests.getQuestManager();
             if (questGUI != null){
 
                 Map<Material, Quests> craftedToQuests = new HashMap<>();

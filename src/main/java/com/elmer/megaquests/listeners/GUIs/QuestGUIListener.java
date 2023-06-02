@@ -8,7 +8,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 public class QuestGUIListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent e){
-        if(ChatColor.translateAlternateColorCodes('&', e.getView().getTitle()).equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests") && e.getCurrentItem() != null){
+        boolean isSameItem = ChatColor.translateAlternateColorCodes('&', e.getView().getTitle())
+                .equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests");
+        if (e.getCurrentItem() != null && isSameItem) {
             e.setCancelled(true);
         }
     }

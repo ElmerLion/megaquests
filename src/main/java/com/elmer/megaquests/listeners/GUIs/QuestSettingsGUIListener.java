@@ -23,20 +23,22 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class QuestSettingsGUIListener implements Listener {
-    MegaQuests megaQuests;
-    QuestManager questManager;
-    public QuestSettingsGUIListener(MegaQuests megaQuests){
+    private final MegaQuests megaQuests;
+    private final QuestManager questManager;
+    public QuestSettingsGUIListener(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
+        this.questManager = questManager;
     }
 
-    private Map<UUID, Quests> playerClickedQuestMap = new HashMap<>();
+    private final Map<UUID, Quests> playerClickedQuestMap = new HashMap<>();
 
     @EventHandler
     public void onInventoryClick (InventoryClickEvent e){
-        questManager = megaQuests.getQuestManager();
 
-        if(ChatColor.translateAlternateColorCodes('&', e.getView().getTitle()).equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests"
-                + ChatColor.GRAY + " - Change Settings") && e.getCurrentItem() != null){
+        boolean isSameTitle = ChatColor.translateAlternateColorCodes('&', e.getView().getTitle())
+                .equals(ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests" + ChatColor.GRAY + " - Change Settings");
+
+        if(isSameTitle && e.getCurrentItem() != null){
             e.setCancelled(true);
             Player player = (Player) e.getWhoClicked();
             ItemStack clickedItem = e.getCurrentItem();
@@ -57,7 +59,11 @@ public class QuestSettingsGUIListener implements Listener {
 
         }
         if (playerClickedQuestMap.get(e.getWhoClicked().getUniqueId()) != null){
-            if (ChatColor.translateAlternateColorCodes('&', e.getView().getTitle()).equals(playerClickedQuestMap.get(e.getWhoClicked().getUniqueId()).getDisplay() + ChatColor.GRAY + " -  Settings") && e.getCurrentItem() !=  null){
+
+            boolean isQuestView = ChatColor.translateAlternateColorCodes('&',
+                    e.getView().getTitle()).equals(playerClickedQuestMap.get(e.getWhoClicked().getUniqueId()).getDisplay()
+                    + ChatColor.GRAY + " -  Settings");
+            if (isQuestView && e.getCurrentItem() !=  null){
                 e.setCancelled(true);
 
 
@@ -126,7 +132,7 @@ public class QuestSettingsGUIListener implements Listener {
                     click(player);
                     buildClickedQuestInv(player);
                 }
-                if (displayName.equals(ChatColor.GOLD + "Amount of generated quests in quests" + ChatColor.RED + " IF CHANGED, RESETS ALL QUESTS")){
+                if (displayName.equals(ChatColor.GOLD + "Amount of generated quests in /quests" + ChatColor.RED + " IF CHANGED, RESETS ALL QUESTS")){
                     if (click.isRightClick()){
                         questManager.addQuestGUIAmount(-1);
                     }
@@ -186,7 +192,7 @@ public class QuestSettingsGUIListener implements Listener {
                         ,ChatColor.YELLOW + "RIGHT-CLICK: Remove 1", ChatColor.YELLOW + "RIGHT-CLICK + SHIFT: Remove 10").build();
 
         ItemStack changeQuestAmount = new ItemBuilder(Material.BLUE_BANNER)
-                .withDisplayName(ChatColor.GOLD + "Amount of generated quests in quests" + ChatColor.RED + " IF CHANGED, RESETS ALL QUESTS")
+                .withDisplayName(ChatColor.GOLD + "Amount of generated quests in /quests" + ChatColor.RED + " IF CHANGED, RESETS ALL QUESTS")
                 .withLore(ChatColor.GREEN + "Current: " + megaQuests.getQuestManager().getQuestGUIAmount(), " "
                         ,ChatColor.YELLOW + "LEFT-CLICK: Add 1", ChatColor.YELLOW + "RIGHT-CLICK: Remove 1").build();
 

@@ -66,6 +66,34 @@ public enum Quests {
             Material.DRAGON_HEAD, 500, 1, 1, true, "hostilemobslaying"),
     KILLWITHER(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill the Wither",
             Material.NETHER_STAR, 400, 1, 1, true, "hostilemobslaying"),
+    KILL_CHICKEN(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Chickens",
+            Material.CHICKEN_SPAWN_EGG, 150, 5, 20, true, "passivemobslaying"),
+    KILL_COW(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Cows",
+            Material.COW_SPAWN_EGG, 150, 5, 20, true, "passivemobslaying"),
+    KILL_SHEEP(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Sheep",
+            Material.SHEEP_SPAWN_EGG, 150, 5, 20, true, "passivemobslaying"),
+    KILL_PIG(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Pigs",
+            Material.PIG_SPAWN_EGG, 150, 5, 20, true, "passivemobslaying"),
+    KILL_HORSE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Horses",
+            Material.HORSE_SPAWN_EGG, 200, 3, 15, true, "passivemobslaying"),
+    KILL_DONKEY(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Donkeys",
+            Material.DONKEY_SPAWN_EGG, 200, 3, 15, true, "passivemobslaying"),
+    KILL_RABBIT(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Rabbits",
+            Material.RABBIT_SPAWN_EGG, 150, 5, 20, true, "passivemobslaying"),
+    KILL_POLAR_BEAR(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Polar Bears",
+            Material.POLAR_BEAR_SPAWN_EGG, 250, 3, 10, true, "passivemobslaying"),
+    KILL_LLAMA(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Llamas",
+            Material.LLAMA_SPAWN_EGG, 200, 5, 20, true, "passivemobslaying"),
+    KILL_MUSHROOM_COW(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Mooshrooms",
+            Material.MOOSHROOM_SPAWN_EGG, 250, 3, 15, true, "passivemobslaying"),
+    KILL_BEE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Bees",
+            Material.BEE_SPAWN_EGG, 200, 5, 20, true, "passivemobslaying"),
+    KILL_DOLPHIN(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Dolphins",
+            Material.DOLPHIN_SPAWN_EGG, 300, 3, 10, true, "passivemobslaying"),
+    KILL_SNOW_GOLEM(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Snow Golems",
+            Material.SNOW_BLOCK, 250, 3, 10, true, "passivemobslaying"),
+    KILL_IRON_GOLEM(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Iron Golems",
+            Material.IRON_BLOCK, 350, 2, 5, true, "passivemobslaying"),
     KILLPLAYER(ChatColor.GREEN.toString() + ChatColor.BOLD + "Kill Players",
             Material.PLAYER_HEAD, 100, 1, 10, true, "hostilemobslaying"),
     MINEIRONORE(ChatColor.GREEN.toString() + ChatColor.BOLD + "Mine Iron Ore",
@@ -169,6 +197,11 @@ public enum Quests {
     public void setMaxTask(int amount){ maxTask = amount; }
     public void setMinTask(int amount) { minTask = amount; }
     public void setReward(int amount){reward = amount;}
+
+    public void setItemDisplay(Material itemDisplay) {this.itemDisplay = itemDisplay;}
+
+    public void setDisplay(String display) {this.display = display;}
+
     public String getCategory(){return category;}
     public void addReward (int amount) {
         reward += amount;
