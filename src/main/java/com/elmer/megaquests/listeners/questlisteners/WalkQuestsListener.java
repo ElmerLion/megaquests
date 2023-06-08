@@ -23,7 +23,7 @@ public class WalkQuestsListener implements Listener {
 
     @EventHandler
     public void onPlayerMove (PlayerMoveEvent e){
-        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
+        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI(e.getPlayer());
 
         if (questGUI !=null){
             Location from = e.getFrom();

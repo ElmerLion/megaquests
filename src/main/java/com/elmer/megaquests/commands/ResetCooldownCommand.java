@@ -37,6 +37,11 @@ public class ResetCooldownCommand implements CommandExecutor {
                 return false;
             }
 
+            if (!megaQuests.getQuestManager().isCooldownBased()){
+                player.sendMessage(ChatColor.RED + "Individual Cooldowns are not enabled!");
+                return false;
+            }
+
             for (Player target : Bukkit.getOnlinePlayers()){
                 if (target.getName().equals(args[0])){
                     megaQuests.getCooldownManager().resetCooldown(target);

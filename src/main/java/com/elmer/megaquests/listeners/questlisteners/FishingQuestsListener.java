@@ -30,7 +30,7 @@ public class FishingQuestsListener implements Listener {
 
 
         if (e.getState().equals(PlayerFishEvent.State.CAUGHT_FISH) && e.getCaught() instanceof CraftItem){
-            Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
+            Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI(e.getPlayer());
 
             if (questGUI != null){
                 Player player = e.getPlayer();

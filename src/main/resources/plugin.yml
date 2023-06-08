@@ -6,3 +6,4 @@ commands:
   quests:
   resetcooldown:
   questsettings:
+  resetglobaltimer:

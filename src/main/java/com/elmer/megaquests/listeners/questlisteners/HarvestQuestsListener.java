@@ -32,7 +32,7 @@ public class HarvestQuestsListener implements Listener {
             if (crop.getAge() == crop.getMaximumAge()){
                 Material cropType = e.getBlock().getType();
                 QuestManager questManager = megaQuests.getQuestManager();
-                Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
+                Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI(e.getPlayer());
                 Player player = e.getPlayer();
 
                 Map<Material, Quests> cropToQuestMap = new HashMap<>();

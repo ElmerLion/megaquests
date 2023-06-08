@@ -24,8 +24,8 @@ public class BlockBreakQuestsListener implements Listener {
 
     @EventHandler
     public void onBlockBreak (BlockBreakEvent e){
-        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
 
+        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI(e.getPlayer());
 
         if (questGUI != null){
             Player player = e.getPlayer();
@@ -46,6 +46,7 @@ public class BlockBreakQuestsListener implements Listener {
 
             if (blockToQuest.containsKey(brokenBlockType)){
                 Quests associatedQuest = blockToQuest.get(brokenBlockType);
+
                 for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot() + 1; i++){
                     if (questGUI.getItem(i).getType().equals(associatedQuest.getItemDisplay())
                             && !questManager.checkCompletedEnabled(player, associatedQuest)){

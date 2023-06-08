@@ -22,7 +22,7 @@ public class EnchantingQuestsListener implements Listener {
     @EventHandler
     public void onEnchant (EnchantItemEvent e){
 
-        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
+        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI(e.getEnchanter());
 
         if (questGUI != null){
             Player player = e.getEnchanter();

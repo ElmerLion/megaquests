@@ -4,6 +4,8 @@ import com.elmer.megaquests.ItemBuilder;
 import com.elmer.megaquests.MegaQuests;
 import com.elmer.megaquests.enums.Quests;
 import net.ess3.api.MaxMoneyException;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -21,17 +23,20 @@ import java.util.*;
 
 public class QuestManager {
     private File questProgressFile;
+    private CooldownManager cooldownManager;
     Map<UUID, Map<Quests, Integer>> playerProgressMap;
-    private Map<UUID, Map<Quests, Integer>> playerTaskAmountsMap = new HashMap<>();
+    private final Map<UUID, Map<Quests, Integer>> playerTaskAmountsMap = new HashMap<>();
     public Map<UUID, Set<Quests>> completedQuests = new HashMap<>();
     FileConfiguration config;
     File configFile;
 
     MegaQuests megaQuests;
     private int questGUIAmount = 5;
+    private boolean isCooldownBased = true;
 
-    public QuestManager(MegaQuests megaQuests){
+    public QuestManager(MegaQuests megaQuests, CooldownManager cooldownManager){
         this.megaQuests = megaQuests;
+        this.cooldownManager = cooldownManager;
     }
     public void checkCompletion(Player player, Quests quests, int progress){
         UUID playerId = player.getUniqueId();
@@ -39,6 +44,9 @@ public class QuestManager {
 
         Map<Quests, Integer> playerTaskAmountMap = playerTaskAmountsMap.getOrDefault(playerId, new HashMap<>());
         int taskAmount = playerTaskAmountMap.getOrDefault(quests, 0);
+
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                TextComponent.fromLegacyText(ChatColor.GREEN + quests.getDisplay() + ": " + getProgress(playerId, quests) + "/" + taskAmount));
 
         if (getProgress(player.getUniqueId(), quests) == taskAmount){
             BigDecimal rewardAmount = new BigDecimal(quests.getReward());
@@ -94,15 +102,22 @@ public class QuestManager {
            setQuestGUIAmount(questGUIAmount);
            config.set("QuestsInGUIAmount", getQuestGUIAmount());
 
+           boolean isIndividual = config.getBoolean("IndividualTimer", isCooldownBased());
+           megaQuests.getQuestManager().setCooldownBased(isIndividual);
+           config.set("IndividualTimer", isCooldownBased());
+
 
         for (Quests quest : Quests.values()) {
             String questKey = quest.name();
 
-            boolean enabled = config.getBoolean("Quests." + questKey + ".enabled", true);
+            boolean enabled = config.getBoolean("Quests." + questKey + ".enabled", quest.isEnabled());
             quest.setEnabled(enabled);
 
             String displayName = config.getString("Quests." + questKey + ".displayName", quest.getDisplay());
             quest.setDisplay(displayName);
+
+            String material = config.getString("Quests." + questKey + ".itemDisplay", quest.getItemDisplay().toString());
+            quest.setItemDisplay(Material.getMaterial(material));
 
             int maxTask = config.getInt("Quests." + questKey + ".maxTask", quest.getMaxTask());
             quest.setMaxTask(maxTask);
@@ -116,6 +131,7 @@ public class QuestManager {
 
             config.set("Quests." + questKey + ".enabled", quest.isEnabled());
             config.set("Quests." + questKey + ".displayName", quest.getDisplay());
+            config.set("Quests." + questKey + ".itemDisplay", quest.getItemDisplay().toString());
             config.set("Quests." + questKey + ".minTask", quest.getMinTask());
             config.set("Quests." + questKey + ".maxTask", quest.getMaxTask());
             config.set("Quests." + questKey + ".reward", quest.getReward());
@@ -126,28 +142,31 @@ public class QuestManager {
             e.printStackTrace();
         }
     }
+
     public void updateConfig(){
-        config = YamlConfiguration.loadConfiguration(configFile);
+
 
         config.set("ResetTimer (in  minutes)", megaQuests.getCooldownManager().getResetTimer());
         config.set("QuestsInGUIAmount", getQuestGUIAmount());
+        config.set("IndividualTimer", isCooldownBased());
 
         for (Quests quest : Quests.values()){
             String questKey = quest.name();
 
             config.set("Quests." + questKey + ".enabled", quest.isEnabled());
+            config.set("Quests." + questKey + ".displayName", quest.getDisplay());
+            config.set("Quests." + questKey + ".itemDisplay", quest.getItemDisplay().toString());
             config.set("Quests." + questKey + ".minTask", quest.getMinTask());
             config.set("Quests." + questKey + ".maxTask", quest.getMaxTask());
             config.set("Quests." + questKey + ".reward", quest.getReward());
         }
-
         try {
             config.save(configFile);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
-
     }
+
 
     public void savePlayerQuestProgress(Player player) {
         UUID playerId = player.getUniqueId();
@@ -304,5 +323,19 @@ public class QuestManager {
 
     public Map<UUID, Map<Quests, Integer>> getPlayerTaskAmountsMap() {
         return playerTaskAmountsMap;
+    }
+
+    public boolean isCooldownBased() {return isCooldownBased;}
+    public void setCooldownBased(boolean cooldownBased) {
+        isCooldownBased = cooldownBased;
+
+        if (!isCooldownBased){
+            cooldownManager.resetAllCooldowns();
+            cooldownManager.checkGlobalCooldown();
+        }
+        if (isCooldownBased){
+            cooldownManager.resetAllCooldowns();
+            cooldownManager.cancelGlobalCooldown();
+        }
     }
 }

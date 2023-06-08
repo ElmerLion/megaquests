@@ -1,8 +1,10 @@
 package com.elmer.megaquests.managers;
 import com.elmer.megaquests.MegaQuests;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.io.*;
 import java.sql.Time;
@@ -19,12 +21,45 @@ public class CooldownManager {
     private long timeToWait;
     private long resetTimer = 1440;
 
+    private long globalCooldownEndTime;
 
     public CooldownManager(File dataFile, MegaQuests megaQuests) {
         this.dataFile = dataFile;
         this.cooldowns = loadCooldownsFromFile();
         this.megaQuests = megaQuests;
     }
+
+    public void checkGlobalCooldown(){
+
+
+        long currentTime = System.currentTimeMillis();
+        long newGlobalCooldownEndTime = currentTime + TimeUnit.MINUTES.toMillis(resetTimer);
+
+        if (currentTime >= globalCooldownEndTime) {
+            megaQuests.getQuestGUICommand().getPlayersWithInventory().clear();
+            globalCooldownEndTime = newGlobalCooldownEndTime;
+
+            timeToWait = newGlobalCooldownEndTime - currentTime;
+            setTimeToWait(timeToWait);
+
+        } else {
+            timeToWait = globalCooldownEndTime - currentTime;
+            setTimeToWait(timeToWait);
+        }
+
+        megaQuests.getServer().getScheduler().runTaskLater(megaQuests, this::checkGlobalCooldown, 20L * resetTimer * 60);
+    }
+    public boolean isGlobalCooldownActive() {
+        long currentTime = System.currentTimeMillis();
+        return currentTime < globalCooldownEndTime;
+    }
+    public void cancelGlobalCooldown() {
+        globalCooldownEndTime = System.currentTimeMillis();
+    }
+
+
+
+
 
     public void checkCooldown(Player player) {
         UUID playerId = player.getUniqueId();
@@ -40,8 +75,6 @@ public class CooldownManager {
             setTimeToWait(timeToWait);
 
             megaQuests.getQuestGUICommand().createQuestGUI(player);
-
-
 
         } else {
             timeToWait = cooldownEndTime - currentTime;
@@ -84,6 +117,7 @@ public class CooldownManager {
 
     public void resetCooldown(Player player) {
         cooldowns.remove(player.getUniqueId());
+        megaQuests.getQuestGUICommand().getQuestGUIRaw().remove(player.getUniqueId());
         saveCooldownsToFile();
     }
     public void resetAllCooldowns (){

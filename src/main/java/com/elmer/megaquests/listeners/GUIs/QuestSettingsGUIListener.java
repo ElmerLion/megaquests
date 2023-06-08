@@ -159,6 +159,17 @@ public class QuestSettingsGUIListener implements Listener {
                     click(player);
                     buildClickedQuestInv(player);
                 }
+                if (displayName.equals(ChatColor.GOLD + "Cooldown Type")){
+                    if (click.isLeftClick()){
+                        questManager.setCooldownBased(true);
+                    }
+                    if (click.isRightClick()){
+                        questManager.setCooldownBased(false);
+                    }
+                    click(player);
+                    buildClickedQuestInv(player);
+                }
+                questManager.updateConfig();
             }
         }
     }
@@ -203,16 +214,28 @@ public class QuestSettingsGUIListener implements Listener {
                         ,ChatColor.YELLOW + "LEFT-CLICK: Add 2 Hours", ChatColor.YELLOW + "RIGHT-CLICK: Remove 2 Hours"
                         ,ChatColor.YELLOW + "LEFT-CLICK + SHIFT: Add 30 Minutes", ChatColor.YELLOW + "RIGHT-CLICK + SHIFT: Remove 30 Minutes").build();
 
-        //ItemStack goBack = new ItemBuilder(Material.BARRIER).withDisplayName(ChatColor.RED + "GO BACK").build();
 
+        String currentTimerType = "None";
+        if (questManager.isCooldownBased()){
+             currentTimerType = ChatColor.GOLD + "Individual Cooldowns";
+        }
 
-        //clickedQuestInv.setItem(0, goBack);
-        clickedQuestInv.setItem(2, enableDisable);
-        clickedQuestInv.setItem(3, changeReward);
-        clickedQuestInv.setItem(4, changeMinTask);
-        clickedQuestInv.setItem(5, changeMaxTask);
-        clickedQuestInv.setItem(7, changeQuestAmount);
-        clickedQuestInv.setItem(8, changeResetTimer);
+        if (!questManager.isCooldownBased()){
+            currentTimerType = ChatColor.GOLD + "Global Cooldown";
+        }
+
+        ItemStack timerType = new ItemBuilder(Material.COMPARATOR)
+                .withDisplayName(ChatColor.GOLD + "Cooldown Type")
+                .withLore(ChatColor.GREEN + "Current: " + currentTimerType
+                        , ChatColor.YELLOW + "LEFT-CLICK: Individual Cooldowns", ChatColor.YELLOW + "RIGHT-CLICK: Global Cooldown").build();
+
+        clickedQuestInv.setItem(1, enableDisable);
+        clickedQuestInv.setItem(2, changeReward);
+        clickedQuestInv.setItem(3, changeMinTask);
+        clickedQuestInv.setItem(4, changeMaxTask);
+        clickedQuestInv.setItem(6, changeQuestAmount);
+        clickedQuestInv.setItem(7, changeResetTimer);
+        clickedQuestInv.setItem(8, timerType);
 
         player.openInventory(clickedQuestInv);
 

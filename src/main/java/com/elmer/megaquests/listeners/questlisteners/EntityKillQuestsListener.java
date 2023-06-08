@@ -26,7 +26,7 @@ public class EntityKillQuestsListener implements Listener {
     public void onEntityDeath (EntityDeathEvent e){
         if (e.getEntity().getKiller() != null){
             Player player = (Player) e.getEntity().getKiller();
-            Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
+            Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI(player);
 
             if (questGUI != null){
 

@@ -2,6 +2,7 @@ package com.elmer.megaquests;
 
 import com.elmer.megaquests.commands.QuestSettingsGUI;
 import com.elmer.megaquests.commands.QuestGUICommand;
+import com.elmer.megaquests.commands.ResetGlobalTimerCommand;
 import com.elmer.megaquests.listeners.JoinQuitListener;
 import com.elmer.megaquests.listeners.GUIs.QuestSettingsGUIListener;
 import com.elmer.megaquests.listeners.questlisteners.*;
@@ -15,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.earth2me.essentials.Essentials;
 
 import java.io.File;
+import java.util.HashMap;
 
 public final class MegaQuests extends JavaPlugin {
     private Essentials essentials;
@@ -31,15 +33,16 @@ public final class MegaQuests extends JavaPlugin {
         getCommand("questsettings").setExecutor(new QuestSettingsGUI(this));
         getCommand("questsettings").setTabCompleter(new QuestSettingsCompleter());
 
-        questManager = new QuestManager(this);
+        cooldownManager = new CooldownManager(dataFile, this);
+        questManager = new QuestManager(this, cooldownManager);
         questSettingsManager = new QuestSettingsManager(this);
         essentials = Essentials.getPlugin(Essentials.class);
-        cooldownManager = new CooldownManager(dataFile, this);
         questGUICommand = new QuestGUICommand(this ,questManager);
         questSettingsGUI = new QuestSettingsGUI(this);
 
         getCommand("quests").setExecutor(questGUICommand);
         getCommand("resetcooldown").setExecutor(new ResetCooldownCommand(this));
+        getCommand("resetglobaltimer").setExecutor(new ResetGlobalTimerCommand(cooldownManager));
 
 
         Bukkit.getPluginManager().registerEvents(new EntityKillQuestsListener(this, questManager), this);
@@ -54,13 +57,22 @@ public final class MegaQuests extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new TameQuestsListener(this, questManager), this);
         Bukkit.getPluginManager().registerEvents(new HarvestQuestsListener(this,questManager), this);
 
+
         cooldownManager.resetAllCooldowns();
+        questGUICommand.getPlayersWithInventory().clear();
+
+        questGUICommand.getQuestGUIRaw().clear();
 
         questManager.completedQuests.clear();
 
         questManager.setQuestProgressFile(this);
 
         questManager.createQuestsYml();
+
+
+        if (!questManager.isCooldownBased()){
+            cooldownManager.checkGlobalCooldown();
+        }
     }
 
     public CooldownManager getCooldownManager() {

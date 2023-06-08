@@ -3,6 +3,7 @@ package com.elmer.megaquests.commands;
 import com.elmer.megaquests.ItemBuilder;
 import com.elmer.megaquests.MegaQuests;
 import com.elmer.megaquests.enums.Quests;
+import com.elmer.megaquests.managers.CooldownManager;
 import com.elmer.megaquests.managers.QuestManager;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -24,14 +25,21 @@ public class QuestGUICommand implements CommandExecutor {
     private final MegaQuests megaQuests;
     private final QuestManager questManager;
     private static final Random random = new Random();
-    private Inventory questGUI;
     List<ItemStack> questItems = new ArrayList<>();
+    private Map<UUID, Inventory> questInventories;
+    private Map<UUID, List<Quests>> playerQuestsData;
+    private Map<UUID, List<Integer>> playerTaskAmounts;
     List<Quests> questsData = new ArrayList<>();
     List<Integer> taskAmounts = new ArrayList<>();
+    Set<UUID> playersWithInventory = new HashSet<>();
 
     public QuestGUICommand(MegaQuests megaQuests, QuestManager questManager){
         this.megaQuests = megaQuests;
         this.questManager = questManager;
+
+        this.questInventories = new HashMap<>();
+        this.playerQuestsData = new HashMap<>();
+        this.playerTaskAmounts = new HashMap<>();
     }
 
 
@@ -40,21 +48,38 @@ public class QuestGUICommand implements CommandExecutor {
 
         if (commandSender instanceof Player player){
             if (player.hasPermission("megaquests.use")){
-                megaQuests.getCooldownManager().checkCooldown(player);
+                if (questManager.isCooldownBased()){
+                    megaQuests.getCooldownManager().checkCooldown(player);
+                }
+                if (!questManager.isCooldownBased()){
+                    UUID playerId = player.getUniqueId();
+                    if (megaQuests.getCooldownManager().isGlobalCooldownActive()){
+                        if (playersWithInventory.contains(playerId)) {
+                            openQuestGUI(player);
+                        } else {
+                            createQuestGUI(player);
+                            playersWithInventory.add(playerId);
+                        }
+                    }
+                } else {
+                        Bukkit.getLogger().log(Level.WARNING, "MegaQuests: Global Cooldown is not active, try using /resetglobaltimer");
+                }
             } else {
                 player.sendMessage(ChatColor.RED + "You do not have permission to use this command!");
             }
-
         }
+
 
         return false;
     }
     public void createQuestGUI(Player player){
-        questGUI = Bukkit.createInventory(player, 27, ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests");
+        playerTaskAmounts.remove(player.getUniqueId());
+        playerQuestsData.remove(player.getUniqueId());
+
+        Inventory questGUI = Bukkit.createInventory(player, 27, ChatColor.YELLOW.toString() + ChatColor.BOLD + "Quests");
 
         int startingSlot = questManager.getStartingSlot();
         int endingSlot = questManager.getEndingSlot();
-
 
         UUID playerId = player.getUniqueId();
 
@@ -107,47 +132,56 @@ public class QuestGUICommand implements CommandExecutor {
 
                 questGUI.setItem(i, questItem);
 
-                questItems.add(questItem);
-                questsData.add(quest);
-                taskAmounts.add(taskAmount);
+                if (!playerQuestsData.containsKey(playerId) || !playerQuestsData.get(playerId).contains(quest)) {
+                    questItems.add(questItem);
+                    questsData.add(quest);
+                    taskAmounts.add(taskAmount);
+
+                    playerQuestsData.put(playerId, new ArrayList<>(questsData));
+                    playerTaskAmounts.put(playerId, new ArrayList<>(taskAmounts));
+                }
             }
         } else {
             Bukkit.getLogger().log(Level.WARNING, "MegaQuests: Too many quests are disabled, Enable more in quests.yml!");
         }
 
-        createQuestTimer();
+        questInventories.put(playerId, questGUI);
+        createQuestTimer(player);
 
-        player.openInventory(questGUI);
-
-
+        player.openInventory(questInventories.get(playerId));
 
     }
 
     public void openQuestGUI(Player player) {
+        Inventory questGUI = questInventories.get(player.getUniqueId());
 
-        int slot = questManager.getStartingSlot();
-        for (int i = 0; i < questItems.size(); i++) {
-            String itemDisplayName = questsData.get(i).getDisplay() +
-                    " " +
-                    ChatColor.GRAY +
-                    questManager.getProgress(player.getUniqueId(), questsData.get(i)) +
-                    "/" +
-                    taskAmounts.get(i);
+        List<Quests> questsData = playerQuestsData.get(player.getUniqueId());
+        List<Integer> taskAmounts = playerTaskAmounts.get(player.getUniqueId());
+
+
+        for (int i = 0; i < questsData.size(); i++) {
+            String itemDisplayName = questsData.get(i).getDisplay() + " " +
+                    ChatColor.GRAY + questManager.getProgress(player.getUniqueId(), questsData.get(i)) + "/" + taskAmounts.get(i);
 
             ItemStack questItem = new ItemBuilder(questsData.get(i).getItemDisplay())
                     .withDisplayName(itemDisplayName)
                     .withLore(ChatColor.GRAY + "Completion Reward $" + questsData.get(i).getReward()).build();
 
-            questItems.set(slot, questItem);
-            slot++;
+            questGUI.setItem(questManager.getStartingSlot() + i, questItem);
         }
 
-        createQuestTimer();
-        player.openInventory(questGUI);
+        questInventories.put(player.getUniqueId(), questGUI);
+        createQuestTimer(player);
+
+        player.openInventory(questInventories.get(player.getUniqueId()));
     }
 
-    public Inventory getQuestGUI() {
-        return questGUI;
+    public Inventory getQuestGUI(Player player) {
+        return questInventories.get(player.getUniqueId());
+    }
+    public Set<UUID> getPlayersWithInventory() {return playersWithInventory;}
+    public Map<UUID, Inventory> getQuestGUIRaw(){
+        return questInventories;
     }
 
     private Quests[] removeQuest(Quests[] quests, int index) {
@@ -157,21 +191,28 @@ public class QuestGUICommand implements CommandExecutor {
         return newQuests;
     }
 
-    public void createQuestTimer(){
-        if (megaQuests.getCooldownManager().getTimeToWait() < TimeUnit.HOURS.toMillis(1)){
+    public void createQuestTimer(Player player){
+        CooldownManager cooldownManager = megaQuests.getCooldownManager();
+        if (!questManager.isCooldownBased()){
+            cooldownManager.checkGlobalCooldown();
+        }
+        ;
+
+        if (cooldownManager.getTimeToWait() < TimeUnit.HOURS.toMillis(1)){
             ItemStack questResetTimer = new ItemBuilder(Material.CLOCK)
                     .withDisplayName(ChatColor.GOLD.toString()
-                            + TimeUnit.MILLISECONDS.toMinutes(megaQuests.getCooldownManager().getTimeToWait()) + " minutes until reset.").build();
+                            + TimeUnit.MILLISECONDS.toMinutes(cooldownManager.getTimeToWait()) + " Minutes until reset.").build();
 
-            getQuestGUI().setItem(26,questResetTimer);
+
+            getQuestGUI(player).setItem(26,questResetTimer);
         }
 
-        if (megaQuests.getCooldownManager().getTimeToWait() >= TimeUnit.HOURS.toMillis(1)){
+        if (cooldownManager.getTimeToWait() >= TimeUnit.HOURS.toMillis(1)){
             ItemStack questResetTimer = new ItemBuilder(Material.CLOCK)
                     .withDisplayName(ChatColor.GOLD.toString()
-                            + TimeUnit.MILLISECONDS.toHours(megaQuests.getCooldownManager().getTimeToWait()) + " hours until reset.").build();
+                            + TimeUnit.MILLISECONDS.toHours(cooldownManager.getTimeToWait()) + " Hours until reset.").build();
 
-            getQuestGUI().setItem(26,questResetTimer);
+            getQuestGUI(player).setItem(26,questResetTimer);
         }
     }
 }

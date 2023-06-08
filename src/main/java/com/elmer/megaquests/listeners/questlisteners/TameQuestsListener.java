@@ -20,19 +20,21 @@ public class TameQuestsListener implements Listener {
 
     @EventHandler
     public void onTame (EntityTameEvent e){
-        Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI();
 
-        if (e.getOwner() instanceof Player && questGUI != null  ){
+
+        if (e.getOwner() instanceof Player){
             Player player = (Player) e.getOwner();
-            for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot()  + 1; i++){
-                if (e.getEntity() instanceof  Horse && questGUI.getItem(i).getType().equals(Quests.TAMEHORSE.getItemDisplay()) && !questManager.checkCompletedEnabled(player, Quests.TAMEHORSE)){
-                    questManager.checkCompletion(player, Quests.TAMEHORSE, 1);
-                }
-                if (e.getEntity() instanceof Wolf && questGUI.getItem(i).getType().equals(Quests.TAMEWOLF.getItemDisplay()) && !questManager.checkCompletedEnabled(player, Quests.TAMEWOLF)){
-                    questManager.checkCompletion(player, Quests.TAMEWOLF, 1);
+            Inventory questGUI = megaQuests.getQuestGUICommand().getQuestGUI(player);
+            if (questGUI != null){
+                for (int i = questManager.getStartingSlot(); i < questManager.getEndingSlot()  + 1; i++){
+                    if (e.getEntity() instanceof  Horse && questGUI.getItem(i).getType().equals(Quests.TAMEHORSE.getItemDisplay()) && !questManager.checkCompletedEnabled(player, Quests.TAMEHORSE)){
+                        questManager.checkCompletion(player, Quests.TAMEHORSE, 1);
+                    }
+                    if (e.getEntity() instanceof Wolf && questGUI.getItem(i).getType().equals(Quests.TAMEWOLF.getItemDisplay()) && !questManager.checkCompletedEnabled(player, Quests.TAMEWOLF)){
+                        questManager.checkCompletion(player, Quests.TAMEWOLF, 1);
+                    }
                 }
             }
-
         }
     }
 }
